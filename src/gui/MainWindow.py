@@ -1,15 +1,15 @@
 import logging
 import os
 from util.Event import Event
-from gui.LogTextEdit import QTextEditLogger
-from gui.LogFormatter import CustomFormatter
+from GUI.LogTextEdit import QTextEditLogger
+from GUI.LogFormatter import CustomFormatter
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
 
 DEFAULT_BUTTON_HEIGHT = 150
 DEFAULT_BUTTON_WIDTH = 50
-FIRST_IMAGE_NAME = 'theben.jpg'
-ICON_NAME = 'thebenlogo.jpg'
+FIRST_IMAGE_NAME = './resources/theben.jpg'
+ICON_NAME = './resources/thebenlogo.jpg'
 WINDOW_TITLE = "Theben: Main Window"
 BACKGROUND_COLOR = "#F4A999"
 
@@ -21,6 +21,8 @@ home_dir = os.path.expanduser("~/Desktop")
 
 
 class MainWindow(QWidget):
+
+    verified = False
 
     log_textbox = None
     image = None
@@ -126,13 +128,17 @@ class MainWindow(QWidget):
         self.on_do_continue()
 
     def do_start(self):
-        self.on_do_start()
+        if self.verified:
+            self.on_do_start()
+        else:
+            QMessageBox.information(self, "Data not verified", "The setup is not verified (yet)")
 
     def do_stop(self):
         self.on_do_stop()
 
     def update_image(self):
         pass
+        # TODO implementieren
 
     def clear_log(self):
         self.log_textbox.widget.clear()

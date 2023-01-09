@@ -4,7 +4,7 @@ from util.Event import Event
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
 
-ICON_NAME = 'thebenlogo.jpg'
+ICON_NAME = './resources/thebenlogo.jpg'
 WINDOW_TITLE = "Theben: Config Window"
 BACKGROUND_COLOR = "#C4CEFF"
 DEFAULT_BOX_HEIGHT = 35
@@ -22,6 +22,8 @@ class ConfigWindow(QDialog):
     param_box = None
 
     setup_button = None
+    setup_modify_button = None
+    setup_create_button = None
     param_button = None
     button_box = None
 
@@ -38,6 +40,8 @@ class ConfigWindow(QDialog):
         self.setStyleSheet(f"background-color: {BACKGROUND_COLOR};")
         self.init_layout()
         self.on_finished_check = Event()
+        self.on_setup_modify = Event()
+        self.on_setup_create = Event()
 
     def init_layout(self):
         self.init_widgets()
@@ -51,6 +55,8 @@ class ConfigWindow(QDialog):
         setup_label.setText("Select path to setup file: ")
         param_label = QLabel(self)
         param_label.setText("Select path to parameter file: ")
+        setup_options_label = QLabel(self)
+        setup_options_label.setText("Options for setup: ")
 
         setup_layout = QHBoxLayout()
         setup_layout.addWidget(self.setup_box)
@@ -64,10 +70,17 @@ class ConfigWindow(QDialog):
         param_container = QWidget()
         param_container.setLayout(param_layout)
 
+        options_layout = QHBoxLayout()
+        options_layout.addWidget(self.setup_modify_button)
+        options_layout.addWidget(self.setup_create_button)
+        options_container = QWidget()
+        options_container.setLayout(options_layout)
+
         layout_form = QFormLayout()
         layout_form.addRow(mode_label, self.mode_box)
         layout_form.addRow(sequence_label, self.sequence_box)
         layout_form.addRow(setup_label, setup_container)
+        layout_form.addRow(setup_options_label, options_container)
         layout_form.addRow(param_label, param_container)
 
         layout_buttons = QVBoxLayout()
@@ -82,6 +95,11 @@ class ConfigWindow(QDialog):
     def init_buttons(self):
         self.setup_button = QPushButton("Browse")
         self.setup_button.clicked.connect(lambda: self.browse(self.setup_box))
+
+        self.setup_modify_button = QPushButton("Modify setup")
+        self.setup_modify_button.clicked.connect(self.modify_setup)
+        self.setup_create_button = QPushButton("Create new setup")
+        self.setup_create_button.clicked.connect(self.create_setup)
 
         self.param_button = QPushButton("Browse")
         self.param_button.clicked.connect(lambda: self.browse(self.param_box))
@@ -121,10 +139,16 @@ class ConfigWindow(QDialog):
             self.show_message_box("Running mode cannot be run with iterative sequence")
         elif not os.path.exists(self.setup_path):
             self.show_message_box("Setup file path not found")
-        elif not os.path.exists(self.param_path):
+        elif self.mode == "running" and not os.path.exists(self.param_path):
             self.show_message_box("Parameter file path not found")
         else:
-            self.on_finished_check()
+            if self.mode == "calibration" and not self.param_path == "":
+                answer = QMessageBox.question(self, "File will be overwritten",
+                                              "Param file content will be overwritten, continue?")
+                if answer == QMessageBox.StandardButton.Yes:
+                    self.on_finished_check()
+            else:
+                self.on_finished_check()
 
     def show_message_box(self, text):
         msg_box = QMessageBox(self)
@@ -134,6 +158,24 @@ class ConfigWindow(QDialog):
         msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
         msg_box.buttonClicked.connect(msg_box.close)
         msg_box.exec()
+
+    def modify_setup(self):
+        self.on_setup_modify()
+
+    def create_setup(self):
+        self.on_setup_create()
+
+    def add_subscriber_for_modify_setup_event(self, obj_method):
+        self.on_setup_modify += obj_method
+
+    def remove_subscriber_for_modify_setup_event(self, obj_method):
+        self.on_setup_modify -= obj_method
+
+    def add_subscriber_for_create_setup_event(self, obj_method):
+        self.on_setup_create += obj_method
+
+    def remove_subscriber_for_create_setup_event(self, obj_method):
+        self.on_setup_create -= obj_method
 
     def add_subscriber_for_finished_check_event(self, obj_method):
         self.on_finished_check += obj_method
