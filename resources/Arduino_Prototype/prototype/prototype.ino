@@ -104,10 +104,7 @@ void loop() {
       clearVoltages();
     }
     if (number == 5) {
-      triggerCam(1);
-    }
-    if (number == 6) {
-      triggerCam(2);
+      triggerCam();
     }
     if (number == 9) {
       SPI.end();
