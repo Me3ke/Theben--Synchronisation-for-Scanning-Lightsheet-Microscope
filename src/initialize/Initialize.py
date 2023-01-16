@@ -43,13 +43,11 @@ class Initialize:
         else:
             self.commander = CalibrationCommander(self.gui_controller, verificator)
         self.gui_controller.set_commander(self.commander)
-        if self.commander.start_verification():
-            self.gui_controller.set_verified()
+        self.commander.run()
 
     def stop(self):
         if self.commander is None:
             log.critical("quitting without commander")
-            print("quitting without commander")
         else:
             self.commander.stop()
 

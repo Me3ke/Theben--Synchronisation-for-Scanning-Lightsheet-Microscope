@@ -8,7 +8,6 @@ from PyQt6.QtWidgets import *
 
 DEFAULT_BUTTON_HEIGHT = 150
 DEFAULT_BUTTON_WIDTH = 50
-FIRST_IMAGE_NAME = './resources/theben.jpg'
 ICON_NAME = './resources/thebenlogo.jpg'
 WINDOW_TITLE = "Theben: Main Window"
 BACKGROUND_COLOR = "#F4A999"
@@ -25,7 +24,7 @@ class MainWindow(QWidget):
     verified = False
 
     log_textbox = None
-    image = None
+    image_widget = None
     pixmap = None
 
     clear_button = None
@@ -33,6 +32,14 @@ class MainWindow(QWidget):
     continue_button = None
     start_button = None
     stop_button = None
+
+    brightness_slider = None
+    contrast_slider = None
+    gamma_slider = None
+
+    brightness_label = None
+    contrast_label = None
+    gamma_label = None
 
     save_image_path = ""
 
@@ -42,35 +49,51 @@ class MainWindow(QWidget):
         self.setWindowIcon(QtGui.QIcon(ICON_NAME))
         self.setContentsMargins(10, 10, 10, 10)
         self.setStyleSheet(f"background-color: {BACKGROUND_COLOR};")
+        self.image_widget = QLabel(self)
         self.init_layout()
         self.on_do_save = Event()
         self.on_do_continue = Event()
         self.on_do_start = Event()
         self.on_do_stop = Event()
+        self.on_brightness_changed = Event()
+        self.on_contrast_changed = Event()
+        self.on_gamma_changed = Event()
 
     def init_layout(self):
         self.log_textbox = self.init_log_textbox()
-        self.image = self.init_image()
         self.init_buttons()
+        self.init_sliders()
 
         layout_outer = QVBoxLayout()
         upper = QHBoxLayout()
         lower = QHBoxLayout()
-        button_box = QGridLayout()
+        button_box = QVBoxLayout()
 
         layout_outer.addLayout(upper)
         layout_outer.addLayout(lower)
 
         upper.addWidget(self.log_textbox.widget)
-        lower.addWidget(self.image)
+        lower.addWidget(self.image_widget)
         lower.addLayout(button_box)
 
-        button_box.addWidget(self.clear_button, 0, 0, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
-        button_box.addWidget(self.save_button, 1, 0, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
-        button_box.addWidget(self.continue_button, 2, 0, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
-        button_box.addWidget(self.start_button, 3, 0, alignment=QtCore.Qt.AlignmentFlag.AlignBottom)
-        button_box.addWidget(self.stop_button, 4, 0, alignment=QtCore.Qt.AlignmentFlag.AlignBottom)
-        button_box.setRowStretch(2, 1)
+        self.brightness_label = QLabel(self)
+        self.brightness_label.setText('Brightness: ' + "0")
+        self.contrast_label = QLabel(self)
+        self.contrast_label.setText('Contrast: ' + "1")
+        self.gamma_label = QLabel(self)
+        self.gamma_label.setText('Gamma: ' + "1")
+
+        button_box.addWidget(self.clear_button)
+        button_box.addWidget(self.save_button)
+        button_box.addWidget(self.continue_button)
+        button_box.addWidget(self.brightness_label)
+        button_box.addWidget(self.brightness_slider)
+        button_box.addWidget(self.contrast_label)
+        button_box.addWidget(self.contrast_slider)
+        button_box.addWidget(self.gamma_label)
+        button_box.addWidget(self.gamma_slider)
+        button_box.addWidget(self.start_button)
+        button_box.addWidget(self.stop_button)
 
         self.setLayout(layout_outer)
         self.show()
@@ -82,11 +105,9 @@ class MainWindow(QWidget):
         log.setLevel(logging.DEBUG)
         return log_textbox
 
-    def init_image(self):
-        self.image = QLabel(self)
-        self.pixmap = QtGui.QPixmap(FIRST_IMAGE_NAME)
-        self.image.setPixmap(self.pixmap)
-        return self.image
+    def show_image(self, image):
+        self.pixmap = image
+        self.image_widget.setPixmap(self.pixmap)
 
     def init_buttons(self):
         button_size = QtCore.QSize(DEFAULT_BUTTON_HEIGHT, DEFAULT_BUTTON_WIDTH)
@@ -110,6 +131,22 @@ class MainWindow(QWidget):
         self.stop_button.setStyleSheet("background-color: red")
         self.stop_button.setFixedSize(button_size)
         self.init_button_clicked()
+
+    def init_sliders(self):
+        self.brightness_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
+        self.brightness_slider.setMaximum(100)
+        self.brightness_slider.setMinimum(0)
+        self.brightness_slider.sliderReleased.connect(self.change_brightness)
+
+        self.contrast_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
+        self.contrast_slider.setMaximum(50)
+        self.contrast_slider.setMinimum(10)
+        self.contrast_slider.sliderReleased.connect(self.change_contrast)
+
+        self.gamma_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
+        self.gamma_slider.setMaximum(30)
+        self.gamma_slider.setMinimum(10)
+        self.gamma_slider.sliderReleased.connect(self.change_gamma)
 
     def init_button_clicked(self):
         self.clear_button.clicked.connect(self.clear_log)
@@ -136,12 +173,23 @@ class MainWindow(QWidget):
     def do_stop(self):
         self.on_do_stop()
 
+    def change_brightness(self):
+        self.on_brightness_changed()
+
+    def change_contrast(self):
+        self.on_contrast_changed()
+
+    def change_gamma(self):
+        self.on_gamma_changed()
+
     def update_image(self):
         pass
         # TODO implementieren
 
     def clear_log(self):
         self.log_textbox.widget.clear()
+
+    # TODO remove remove methods?
 
     def add_subscriber_for_start_event(self, obj_method):
         self.on_do_start += obj_method
@@ -166,6 +214,24 @@ class MainWindow(QWidget):
 
     def remove_subscriber_for_save_event(self, obj_method):
         self.on_do_save -= obj_method
+
+    def add_subscriber_for_brightness_event(self, obj_method):
+        self.on_brightness_changed += obj_method
+
+    def remove_subscriber_for_brightness_event(self, obj_method):
+        self.on_brightness_changed -= obj_method
+
+    def add_subscriber_for_contrast_event(self, obj_method):
+        self.on_contrast_changed += obj_method
+
+    def remove_subscriber_for_contrast_event(self, obj_method):
+        self.on_contrast_changed -= obj_method
+
+    def add_subscriber_for_gamma_event(self, obj_method):
+        self.on_gamma_changed += obj_method
+
+    def remove_subscriber_for_gamma_event(self, obj_method):
+        self.on_gamma_changed -= obj_method
 
     def get_pixmap(self):
         return self.pixmap

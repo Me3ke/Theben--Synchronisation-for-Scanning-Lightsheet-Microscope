@@ -28,7 +28,8 @@ class Verification:
     def verify(self):
         self.setup = load_setup(self.setup_path)
         if self.mode == "running":
-            self.param = load_param(self.param_path)
+            pass
+            # self.param = load_param(self.param_path)
         else:
             pass
             # TODO evtl. schon eine file für die params erstellen
