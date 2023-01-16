@@ -4,19 +4,23 @@ import cv2
 import numpy as np
 import sys
 import threading
+import os
 
 from PyQt6.QtCore import QFile, QIODeviceBase
 from PyQt6.QtWidgets import QApplication, QFileDialog
 from PyQt6.QtGui import QImage, QPixmap
-from GUI.MainWindow import MainWindow
-from GUI.ConfigWindow import ConfigWindow
-from GUI.SetupWindow import SetupWindow
-from util.Event import Event
-from util.FileLoader import *
+from src.GUI.MainWindow import MainWindow
+from src.GUI.ConfigWindow import ConfigWindow
+from src.GUI.SetupWindow import SetupWindow
+from src.util.Event import Event
+from src.util.FileLoader import *
 
-FIRST_IMAGE_NAME = './resources/default.tif'
+FIRST_IMAGE_NAME = 'C:\\Users\\Admin\\Desktop\\Projekt\\resources\\default.tif'
 DEFAULT_IMAGE_WIDTH = 1024
 DEFAULT_IMAGE_HEIGHT = 512
+DEFAULT_IMAGE_MAX_PIXEL_VALUE = 65535
+DEFAULT_IMAGE_TYPE = QImage.Format.Format_Grayscale16
+DEFAULT_IMAGE_INT_TYPE = np.uint16
 log = logging.getLogger("log")
 home_dir = os.path.expanduser("~/Desktop")
 
@@ -71,13 +75,13 @@ class GUIController:
 
         self.config_window.close()
         self.main_window = MainWindow()
-        image_array = cv2.imread(FIRST_IMAGE_NAME, 0)
-        self.image_array_resized = resize(image_array)
+        image_array = cv2.imread(FIRST_IMAGE_NAME, -1)
+        self.image_array_resized = resize_and_normalize(image_array)
         pixmap = convert_array_to_pixmap(self.image_array_resized)
         self.main_window.show_image(pixmap)
         self.main_window.show()
 
-        time.sleep(1)
+        time.sleep(0.5)
 
         self.main_window.add_subscriber_for_save_event(self.save)
         self.main_window.add_subscriber_for_brightness_event(self.change_brightness)
@@ -92,6 +96,7 @@ class GUIController:
         sys.exit(app.exec())
 
     def save(self):
+        # TODO speichert nicht in org Größe schlimm?
         pixmap = self.main_window.get_pixmap()
         path_to_file = self.main_window.save_image_path
         if path_to_file == "":
@@ -116,18 +121,23 @@ class GUIController:
         self.update_image_values()
 
     def change_contrast(self):
-        self.contrast = self.main_window.contrast_slider.value() / 10
+        self.contrast = self.main_window.contrast_slider.value()
         self.main_window.contrast_label.setText("Contrast: " + str(self.contrast))
         self.update_image_values()
 
     def change_gamma(self):
-        self.gamma = self.main_window.gamma_slider.value() / 10
+        self.gamma = self.main_window.gamma_slider.value() / 100
         self.main_window.gamma_label.setText("Gamma: " + str(self.gamma))
         self.update_image_values()
 
     def update_image_values(self):
-        new_array = cv2.convertScaleAbs(self.image_array_resized, alpha=self.contrast, beta=self.brightness)
-        result_array = np.power(new_array, self.gamma).clip(0, 255).astype(np.uint8)
+        new_array = self.image_array_resized.copy()
+        lim = int(DEFAULT_IMAGE_MAX_PIXEL_VALUE / self.contrast - self.brightness)
+        new_array[new_array > lim] = DEFAULT_IMAGE_MAX_PIXEL_VALUE
+        new_array[new_array <= lim] *= self.contrast
+        new_array[new_array <= lim] += self.brightness
+        result_array = np.power(new_array, self.gamma).clip(0, DEFAULT_IMAGE_MAX_PIXEL_VALUE)\
+            .astype(DEFAULT_IMAGE_INT_TYPE)
         pixmap = convert_array_to_pixmap(result_array)
         self.main_window.show_image(pixmap)
 
@@ -138,7 +148,7 @@ class GUIController:
         self.brightness = 0
         self.contrast = 1
         self.gamma = 1
-        self.image_array_resized = resize(new_image)
+        self.image_array_resized = resize_and_normalize(new_image)
         pixmap = convert_array_to_pixmap(self.image_array_resized)
         self.main_window.show_image(pixmap)
 
@@ -166,7 +176,7 @@ class GUIController:
     def set_commander(self, commander):
         self.commander = commander
         log.info("commander has been set")
-        self.main_window.add_subscriber_for_start_event(self.commander.start)
+        self.main_window.add_subscriber_for_start_event(self.commander.start_thread)
         self.main_window.add_subscriber_for_stop_event(self.commander.stop)
         self.main_window.add_subscriber_for_continue_event(self.commander.cont)
 
@@ -176,13 +186,16 @@ class GUIController:
         log.info("Data has been verified")
 
 
-def resize(array):
+def resize_and_normalize(array):
     image_array_resized = cv2.resize(array, (DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT))
-    return image_array_resized
+    result_array = np.zeros((DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH))
+    normalized_array = cv2.normalize(image_array_resized, result_array, 0,
+                                     DEFAULT_IMAGE_MAX_PIXEL_VALUE, cv2.NORM_MINMAX)
+    return normalized_array
 
 
 def convert_array_to_pixmap(array):
     height, width = array.shape
-    q_img = QImage(array.data, width, height, QImage.Format.Format_Grayscale8)
+    q_img = QImage(array.data, width, height, DEFAULT_IMAGE_TYPE)
     pixmap = QPixmap(q_img)
     return pixmap

@@ -1,8 +1,8 @@
 import logging
 import os
-from util.Event import Event
-from GUI.LogTextEdit import QTextEditLogger
-from GUI.LogFormatter import CustomFormatter
+from src.util.Event import Event
+from src.GUI.LogTextEdit import QTextEditLogger
+from src.GUI.LogFormatter import CustomFormatter
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
 
@@ -134,18 +134,19 @@ class MainWindow(QWidget):
 
     def init_sliders(self):
         self.brightness_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
-        self.brightness_slider.setMaximum(100)
+        self.brightness_slider.setMaximum(10000)
         self.brightness_slider.setMinimum(0)
+        self.brightness_slider.setTickInterval(100)
         self.brightness_slider.sliderReleased.connect(self.change_brightness)
 
         self.contrast_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
-        self.contrast_slider.setMaximum(50)
-        self.contrast_slider.setMinimum(10)
+        self.contrast_slider.setMaximum(10)
+        self.contrast_slider.setMinimum(1)
         self.contrast_slider.sliderReleased.connect(self.change_contrast)
 
         self.gamma_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
-        self.gamma_slider.setMaximum(30)
-        self.gamma_slider.setMinimum(10)
+        self.gamma_slider.setMaximum(200)
+        self.gamma_slider.setMinimum(100)
         self.gamma_slider.sliderReleased.connect(self.change_gamma)
 
     def init_button_clicked(self):

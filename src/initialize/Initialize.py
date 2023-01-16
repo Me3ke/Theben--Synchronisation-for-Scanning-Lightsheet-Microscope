@@ -3,10 +3,10 @@
 """
 import time
 
-from Controller.GUIController import GUIController
-from initialize.Verification import Verification
-from Commander.CalibrationCommander import CalibrationCommander
-from Commander.RunningCommander import RunningCommander
+from src.Controller.GUIController import GUIController
+from src.initialize.Verification import Verification
+from src.Commander.CalibrationCommander import CalibrationCommander
+from src.Commander.RunningCommander import RunningCommander
 
 import logging
 

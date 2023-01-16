@@ -14,11 +14,10 @@ class CameraController:
         self.setup = setup
 
     def take_picture(self):
-        with pco.Camera() as self.camera:
-            self.config_camera()
-            self.camera = pco.Camera()
-            self.camera.record()
-            self.image, meta = self.camera.image()
+        with pco.Camera() as cam:
+            cam.sdk.set_trigger_mode('external exposure start & software trigger')
+            cam.record()
+            self.image, meta = cam.image()
             plt.imshow(self.image, cmap='gray')
             plt.show()
             return self.image

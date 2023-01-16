@@ -8,4 +8,4 @@ serial_laser_stopbits = serial.STOPBITS_ONE
 serial_laser_bytesize = serial.EIGHTBITS
 serial_laser_timeout = 2
 serial_laser_channel = 2
-serial_laser_power = 5
+serial_laser_power = 1

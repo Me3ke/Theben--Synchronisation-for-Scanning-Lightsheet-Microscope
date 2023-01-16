@@ -2,9 +2,10 @@
 
 """
 import logging
-from Controller.CameraController import CameraController
-from Controller.HardwareController import HardwareController
-from Controller.LaserController import LaserController
+import threading
+from src.Controller.CameraController import CameraController
+from src.Controller.HardwareController import HardwareController
+from src.Controller.LaserController import LaserController
 
 log = logging.getLogger("log")
 
@@ -50,14 +51,20 @@ class RunningCommander:
             log.critical(str(e))
             return False
 
+    def start_thread(self):
+        thread = threading.Thread(target=self.start, name='Start')
+        thread.start()
+
     def start(self):
         log.info("starting now...")
         self.laser_controller.set_commands_run()
         self.laser_controller.arm_laser()
-        #self.camera_controller
+        image = self.camera_controller.take_picture()
+        self.gui_controller.update_image(image)
 
     def stop(self):
-        pass
+        self.laser_controller.stop_laser()
+        # TODO other...
 
     def cont(self):
         pass

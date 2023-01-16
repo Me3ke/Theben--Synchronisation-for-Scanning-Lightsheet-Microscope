@@ -2,9 +2,14 @@
 
 """
 import sys
+import os
 
 # -*- coding: utf-8 -*-
 from initialize.Initialize import Initialize
+
+#print(os.getcwd())
+os.chdir('../')
+#print(os.getcwd())
 
 
 def main():
@@ -13,5 +18,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-# TODO das meiste wird nachher in die GUI ausgelagert so dass hier nur noch die angaben prozessiert und weiter
-# TODO gegeben werden!

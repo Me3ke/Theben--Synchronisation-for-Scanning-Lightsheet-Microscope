@@ -1,6 +1,6 @@
 import logging
 import os
-from util.Event import Event
+from src.util.Event import Event
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
 

@@ -34,6 +34,15 @@ class LaserController:
         self.command_list = ["ch " + str(self.laser_channel) + " pow " + str(self.laser_power) + "\r",
                              "en " + str(self.laser_channel) + "\r", "la on\r"]
 
+    def stop_laser(self):
+        try:
+            self.send_command("la off\r")
+        except Exception as ex:
+            log.error(ex)
+            raise ex
+        finally:
+            self.serial_connection.close()
+
     def arm_laser(self):
         try:
             for command in self.command_list:
@@ -41,11 +50,9 @@ class LaserController:
         except Exception as ex:
             log.error(ex)
             raise ex
-        finally:
-            self.serial_connection.close()
 
     def send_command(self, command):
         command_encoded = command.encode()
         self.serial_connection.write(command_encoded)
-        time.sleep(2)
+        time.sleep(0.5)
 
