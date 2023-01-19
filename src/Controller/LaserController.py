@@ -49,10 +49,14 @@ class LaserController:
                 self.send_command(command)
         except Exception as ex:
             log.error(ex)
-            raise ex
+            raise ex # TODO weg?
 
     def send_command(self, command):
         command_encoded = command.encode()
-        self.serial_connection.write(command_encoded)
+        if self.serial_connection.isOpen():
+            self.serial_connection.write(command_encoded)
+        else:
+            raise Exception
+            # TODO custom exception
         time.sleep(0.5)
 

@@ -170,6 +170,7 @@ class MainWindow(QWidget):
             self.on_do_start()
         else:
             QMessageBox.information(self, "Data not verified", "The setup is not verified (yet)")
+            # TODO Möglichkeit zum erneuten verifizieren
 
     def do_stop(self):
         self.on_do_stop()
@@ -182,10 +183,6 @@ class MainWindow(QWidget):
 
     def change_gamma(self):
         self.on_gamma_changed()
-
-    def update_image(self):
-        pass
-        # TODO implementieren
 
     def clear_log(self):
         self.log_textbox.widget.clear()

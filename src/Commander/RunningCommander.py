@@ -40,7 +40,7 @@ class RunningCommander:
 
     def initialize_controllers(self):
         try:
-            self.hardware_controller = HardwareController()
+            self.hardware_controller = HardwareController(self.setup)
             self.camera_controller = CameraController(self.setup)
             self.laser_controller = LaserController(self.setup)
             # TODO datentransfer zu arduino etc.....
@@ -59,12 +59,17 @@ class RunningCommander:
         log.info("starting now...")
         self.laser_controller.set_commands_run()
         self.laser_controller.arm_laser()
+        self.hardware_controller.set_commands_running()
         image = self.camera_controller.take_picture()
         self.gui_controller.update_image(image)
 
     def stop(self):
         self.laser_controller.stop_laser()
+        self.hardware_controller.stop_hc()
         # TODO other...
 
     def cont(self):
         pass
+
+
+# TODO exit codes

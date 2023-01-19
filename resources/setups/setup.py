@@ -22,11 +22,14 @@ serial_hc_2_stopbits = serial.STOPBITS_ONE
 serial_hc_2_bytesize = serial.EIGHTBITS
 serial_hc_2_timeout = 2
 serial_hc_2_trigger_curve_mode = "rising"
-serial_hc_2_trigger_pin = 2
+serial_hc_2_trigger_pin_in = 4
+serial_hc_2_camera_trigger_pin = 2
+serial_hc_2_camera_trigger_curve_mode = "rising"
 
 
 # Camera data
 serial_camera_trigger_curve_mode = "rising"
+serial_camera_trigger_mode = "external exposure start & software trigger"
 # TODO default camera setup
 # TODO default camera constants
 

@@ -115,6 +115,7 @@ class GUIController:
         log.error('foobar')
         log.critical("theben")
 
+    # TODO adjust contrast brightness etc values
     def change_brightness(self):
         self.brightness = self.main_window.brightness_slider.value()
         self.main_window.brightness_label.setText("Brightness: " + str(self.brightness))
