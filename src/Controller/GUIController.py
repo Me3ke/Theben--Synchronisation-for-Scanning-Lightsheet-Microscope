@@ -15,7 +15,7 @@ from src.GUI.SetupWindow import SetupWindow
 from src.util.Event import Event
 from src.util.FileLoader import *
 
-FIRST_IMAGE_NAME = 'C:\\Users\\Admin\\Desktop\\Projekt\\resources\\default.tif'
+FIRST_IMAGE_NAME = "C:\\Users\\mmoebius\\Desktop\\Projekt\\resources\\default.tif"
 DEFAULT_IMAGE_WIDTH = 1024
 DEFAULT_IMAGE_HEIGHT = 512
 DEFAULT_IMAGE_MAX_PIXEL_VALUE = 65535
@@ -47,6 +47,8 @@ class GUIController:
     setup_to_modify = None
 
     image_array_resized = None
+    original_height = 0
+    original_width = 0
     brightness = 0
     contrast = 1
     gamma = 1
@@ -97,7 +99,9 @@ class GUIController:
 
     def save(self):
         # TODO speichert nicht in org Größe schlimm?
-        pixmap = self.main_window.get_pixmap()
+        image_array = cv2.resize(self.image_array_resized, (self.original_width, self.original_height))
+        pixmap = self.update_image_values(image_array)
+        #pixmap = self.main_window.get_pixmap()
         path_to_file = self.main_window.save_image_path
         if path_to_file == "":
             log.error("No path specified")
@@ -119,20 +123,23 @@ class GUIController:
     def change_brightness(self):
         self.brightness = self.main_window.brightness_slider.value()
         self.main_window.brightness_label.setText("Brightness: " + str(self.brightness))
-        self.update_image_values()
+        pixmap = self.update_image_values(self.image_array_resized)
+        self.main_window.show_image(pixmap)
 
     def change_contrast(self):
         self.contrast = self.main_window.contrast_slider.value()
         self.main_window.contrast_label.setText("Contrast: " + str(self.contrast))
-        self.update_image_values()
+        pixmap = self.update_image_values(self.image_array_resized)
+        self.main_window.show_image(pixmap)
 
     def change_gamma(self):
         self.gamma = self.main_window.gamma_slider.value() / 100
         self.main_window.gamma_label.setText("Gamma: " + str(self.gamma))
-        self.update_image_values()
+        pixmap = self.update_image_values(self.image_array_resized)
+        self.main_window.show_image(pixmap)
 
-    def update_image_values(self):
-        new_array = self.image_array_resized.copy()
+    def update_image_values(self, image_array):
+        new_array = image_array.copy()
         lim = int(DEFAULT_IMAGE_MAX_PIXEL_VALUE / self.contrast - self.brightness)
         new_array[new_array > lim] = DEFAULT_IMAGE_MAX_PIXEL_VALUE
         new_array[new_array <= lim] *= self.contrast
@@ -140,9 +147,11 @@ class GUIController:
         result_array = np.power(new_array, self.gamma).clip(0, DEFAULT_IMAGE_MAX_PIXEL_VALUE)\
             .astype(DEFAULT_IMAGE_INT_TYPE)
         pixmap = convert_array_to_pixmap(result_array)
-        self.main_window.show_image(pixmap)
+        return pixmap
 
     def update_image(self, new_image):
+        self.original_height = new_image.shape[0]
+        self.original_width = new_image.shape[1]
         self.main_window.brightness_slider.setValue(0)
         self.main_window.contrast_slider.setValue(1)
         self.main_window.gamma_slider.setValue(1)
