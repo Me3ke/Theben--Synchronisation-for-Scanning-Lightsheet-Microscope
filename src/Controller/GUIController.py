@@ -15,7 +15,7 @@ from src.GUI.SetupWindow import SetupWindow
 from src.util.Event import Event
 from src.util.FileLoader import *
 
-FIRST_IMAGE_NAME = "C:\\Users\\mmoebius\\Desktop\\Projekt\\resources\\default.tif"
+FIRST_IMAGE_NAME = "C:\\Users\\Admin\\Desktop\\Projekt\\resources\\default.tif"
 DEFAULT_IMAGE_WIDTH = 1024
 DEFAULT_IMAGE_HEIGHT = 512
 DEFAULT_IMAGE_MAX_PIXEL_VALUE = 65535

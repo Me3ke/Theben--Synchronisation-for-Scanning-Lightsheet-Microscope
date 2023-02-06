@@ -25,10 +25,9 @@ class HardwareController:
         #setup.serial_hc_2_camera_trigger_curve_mode = "rising"
         time.sleep(4) #needs to wait for setup
         status = ""
-        self.send_command('0')
-        time.sleep(3)
-        if self.serial_connection.in_waiting:
-            status = (self.serial_connection.readline()).decode("ascii")
+        #self.send_command('1')
+        #time.sleep(3)
+        #self.send_command("3400")
         log.warning(status)
         print(status)
         #if status != "Theben1":
@@ -37,7 +36,8 @@ class HardwareController:
 
     def set_commands_running(self):
         try:
-            self.send_command('6')
+            time.sleep(2)
+            self.send_command('3')
         except Exception as ex:
             log.error(ex)
             self.stop_hc()
