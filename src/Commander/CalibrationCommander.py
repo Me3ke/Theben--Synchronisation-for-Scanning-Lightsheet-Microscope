@@ -10,6 +10,8 @@ from src.Controller.LaserController import LaserController
 
 log = logging.getLogger("log")
 
+# TODO aus Running übertragen, anpassen
+# TODO ergebnisse in einer parameter datei hinterlegen
 
 class CalibrationCommander:
     hardware_controller = None
@@ -24,7 +26,6 @@ class CalibrationCommander:
         self.hardware_controller = HardwareController()
         self.camera_controller = CameraController()
         self.laser_controller = LaserController()
-        # TODO datentransfer zu arduino etc.....
 
     def start(self):
         pass

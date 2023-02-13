@@ -19,7 +19,9 @@ class RunningCommander:
     laser_controller = None
     setup = None
     verified = False
+    stopped = False
     max_list = []
+    mode = '2'
 
     def __init__(self, gui_controller, setup_path, param_path):
         self.gui_controller = gui_controller
@@ -38,16 +40,20 @@ class RunningCommander:
 
     def initialize_controllers(self):
         try:
-
-            self.hardware_controller = HardwareController(self.setup)
             self.camera_controller = CameraController(self.setup)
-            #self.laser_controller = LaserController(self.setup)
-            # TODO datentransfer zu arduino etc.....
+            self.hardware_controller = HardwareController(self.setup, self.param)
+            self.hardware_controller.init_hc()
+            self.hardware_controller.set_commands(self.setup, self.param, self.mode)
+            self.hardware_controller.transmit_commands()
+            self.laser_controller = LaserController(self.setup)
+            self.laser_controller.set_commands_run()
             return True
         except Exception as e:
             log.error("Failed to initialize connections.")
             log.error("The corresponding error arises from: ")
             log.critical(str(e))
+            self.verified = False
+            self.stopped = True
             return False
 
     def start_thread(self):
@@ -56,30 +62,44 @@ class RunningCommander:
 
     def start(self):
         log.info("starting now...")
-        #self.laser_controller.set_commands_run()
-        #self.laser_controller.arm_laser()
-        thread = threading.Thread(target=self.hardware_controller.set_commands)
-        thread.start()
-        image = self.camera_controller.take_picture()
-        #self.hardware_controller.set_commands_running()
+        if self.stopped:
+            log.warning("After stopping the Application, you need to continue first, before restarting.")
+        else:
+            self.laser_controller.arm_laser()
+            thread = threading.Thread(target=self.hardware_controller.start)
+            thread.start()
+            image = self.camera_controller.take_picture()
+            if image is None:
+                log.error("Camera could not make an image, make sure the parameters are valid.")
+            else:
+                self.gui_controller.update_image(image)
+            elapsed_time = self.hardware_controller.get_single_command()
+            log.info("The galvo needed " + elapsed_time + "microseconds")
+        """
         center_image = np.sum(image, axis=1)
         max = np.amax(center_image)
         for i in range(0, image.shape[1]):
             if center_image[i] == max:
                 self.max_list.append(i)
                 print(i)
-        self.gui_controller.update_image(image)
+        """
 
     def stop(self):
-        pass
-        #self.laser_controller.stop_laser()
-        #self.hardware_controller.stop_hc()
-        # TODO other...
+        if self.verified:
+            self.laser_controller.stop_laser()
+            self.hardware_controller.stop()
+            self.stopped = True
+
+    def cont_thread(self):
+        thread = threading.Thread(target=self.cont, name='Restart')
+        thread.start()
 
     def cont(self):
-        # TODO should enable connections again too
-        # if not self.verified: run
-        pass
+        if self.stopped:
+            self.hardware_controller.cont()
+            self.verified = False
+            self.stopped = False
+            self.run()
 
 
 # TODO exit codes

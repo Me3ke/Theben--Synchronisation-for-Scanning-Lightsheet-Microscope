@@ -26,6 +26,7 @@ class ConfigWindow(QDialog):
     param_button = None
     button_box = None
 
+    # TODO remove sequence
     mode = ""
     setup_path = ""
     param_path = ""

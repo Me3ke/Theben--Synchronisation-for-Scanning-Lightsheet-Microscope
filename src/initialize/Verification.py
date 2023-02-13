@@ -4,6 +4,7 @@ import shutil
 import os
 import importlib
 
+# TODO Remove entirely
 from src.util.FileLoader import *
 
 """

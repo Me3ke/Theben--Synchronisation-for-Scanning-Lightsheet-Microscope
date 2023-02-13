@@ -15,7 +15,7 @@ from src.GUI.SetupWindow import SetupWindow
 from src.util.Event import Event
 from src.util.FileLoader import *
 
-FIRST_IMAGE_NAME = "C:\\Users\\mmoebius\\Desktop\\Projekt\\resources\\default.tif"
+FIRST_IMAGE_NAME = './resources/default.tif'
 DEFAULT_IMAGE_WIDTH = 1024
 DEFAULT_IMAGE_HEIGHT = 512
 DEFAULT_IMAGE_MAX_PIXEL_VALUE = 65535
@@ -29,7 +29,6 @@ home_dir = os.path.expanduser("~/Desktop")
 
 
 class GUIController:
-    # TODO macht ein controller interface sinn?
 
     main_window = None
     config_window = None
@@ -46,6 +45,7 @@ class GUIController:
     setup_to_modify = None
 
     image_array_resized = None
+    original_array = None
     original_height = 0
     original_width = 0
     brightness = 0
@@ -87,7 +87,6 @@ class GUIController:
         self.main_window.add_subscriber_for_brightness_event(self.change_brightness)
         self.main_window.add_subscriber_for_contrast_event(self.change_contrast)
         self.main_window.add_subscriber_for_gamma_event(self.change_gamma)
-        self.test_log()
 
     def show_config_window(self):
         app = QApplication(sys.argv)
@@ -96,10 +95,10 @@ class GUIController:
         sys.exit(app.exec())
 
     def save(self):
-        # TODO speichert nicht in org Größe schlimm?
-        image_array = cv2.resize(self.image_array_resized, (self.original_width, self.original_height))
-        pixmap = self.update_image_values(image_array)
-        #pixmap = self.main_window.get_pixmap()
+        result_array = np.zeros((DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH))
+        normalized_array = cv2.normalize(self.original_array, result_array, 0,
+                                         DEFAULT_IMAGE_MAX_PIXEL_VALUE, cv2.NORM_MINMAX)
+        pixmap = self.update_image_values(normalized_array)
         path_to_file = self.main_window.save_image_path
         if path_to_file == "":
             log.error("No path specified")
@@ -110,13 +109,7 @@ class GUIController:
             else:
                 log.error("File could not be opened, make sure the file is closed and files may be created")
 
-    def test_log(self):
-        log.debug('damn, a bug')
-        log.info('something to remember')
-        log.warning('that\'s not right')
-        log.error('foobar')
-        log.critical("theben")
-
+    # TODO add useful logs
     # TODO adjust contrast brightness etc values
     def change_brightness(self):
         self.brightness = self.main_window.brightness_slider.value()
@@ -150,6 +143,7 @@ class GUIController:
     def update_image(self, new_image):
         self.original_height = new_image.shape[0]
         self.original_width = new_image.shape[1]
+        self.original_array = new_image
         self.main_window.brightness_slider.setValue(0)
         self.main_window.contrast_slider.setValue(1)
         self.main_window.gamma_slider.setValue(1)
@@ -183,10 +177,10 @@ class GUIController:
 
     def set_commander(self, commander):
         self.commander = commander
-        log.info("commander has been set")
+        log.info("Commander has been set")
         self.main_window.add_subscriber_for_start_event(self.commander.start_thread)
         self.main_window.add_subscriber_for_stop_event(self.commander.stop)
-        self.main_window.add_subscriber_for_continue_event(self.commander.cont)
+        self.main_window.add_subscriber_for_continue_event(self.commander.cont_thread)
 
     def set_verified(self):
         self.verified = True
