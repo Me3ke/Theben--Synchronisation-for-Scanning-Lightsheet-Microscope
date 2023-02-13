@@ -37,6 +37,7 @@ class Initialize:
         self.sequence = self.gui_controller.sequence
         self.setup_path = self.gui_controller.setup_path
         self.param_path = self.gui_controller.param_path
+        # TODO remove Verificator
         verificator = Verification(self.mode, self.sequence, self.setup_path, self.param_path)
         if self.mode == "running":
             self.commander = RunningCommander(self.gui_controller, verificator)
