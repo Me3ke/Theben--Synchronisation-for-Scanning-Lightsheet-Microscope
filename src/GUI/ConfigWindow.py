@@ -17,7 +17,6 @@ home_dir = os.path.expanduser("~/Desktop")
 class ConfigWindow(QDialog):
 
     mode_box = None
-    sequence_box = None
     setup_box = None
     param_box = None
 
@@ -28,7 +27,6 @@ class ConfigWindow(QDialog):
     button_box = None
 
     mode = ""
-    sequence = ""
     setup_path = ""
     param_path = ""
 
@@ -49,8 +47,6 @@ class ConfigWindow(QDialog):
 
         mode_label = QLabel(self)
         mode_label.setText("Select mode: ")
-        sequence_label = QLabel(self)
-        sequence_label.setText("Select sequence: ")
         setup_label = QLabel(self)
         setup_label.setText("Select path to setup file: ")
         param_label = QLabel(self)
@@ -78,7 +74,6 @@ class ConfigWindow(QDialog):
 
         layout_form = QFormLayout()
         layout_form.addRow(mode_label, self.mode_box)
-        layout_form.addRow(sequence_label, self.sequence_box)
         layout_form.addRow(setup_label, setup_container)
         layout_form.addRow(setup_options_label, options_container)
         layout_form.addRow(param_label, param_container)
@@ -114,9 +109,6 @@ class ConfigWindow(QDialog):
         self.mode_box = QComboBox()
         self.mode_box.addItems(["running", "calibration"])
 
-        self.sequence_box = QComboBox()
-        self.sequence_box.addItems(["continuous", "iterative"])
-
         self.setup_box = QTextEdit()
         self.setup_box.setFixedSize(box_size)
         self.setup_box.setObjectName('setup')
@@ -132,12 +124,9 @@ class ConfigWindow(QDialog):
 
     def check(self):
         self.mode = self.mode_box.currentText()
-        self.sequence = self.sequence_box.currentText()
         self.setup_path = self.setup_box.toPlainText()
         self.param_path = self.param_box.toPlainText()
-        if self.mode == "running" and self.sequence == "iterative":
-            self.show_message_box("Running mode cannot be run with iterative sequence")
-        elif not os.path.exists(self.setup_path):
+        if not os.path.exists(self.setup_path):
             self.show_message_box("Setup file path not found")
         elif self.mode == "running" and not os.path.exists(self.param_path):
             self.show_message_box("Parameter file path not found")

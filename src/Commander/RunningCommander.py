@@ -7,6 +7,7 @@ import numpy as np
 from src.Controller.CameraController import CameraController
 from src.Controller.HardwareController import HardwareController
 from src.Controller.LaserController import LaserController
+from src.util.FileLoader import *
 
 log = logging.getLogger("log")
 
@@ -17,38 +18,34 @@ class RunningCommander:
     camera_controller = None
     laser_controller = None
     setup = None
+    verified = False
     max_list = []
 
-    def __init__(self, gui_controller, verificator):
+    def __init__(self, gui_controller, setup_path, param_path):
         self.gui_controller = gui_controller
-        self.verificator = verificator
-        self.verificator.set_commander(self)
-
-    def run(self):
-        if self.start_verification():
-            if self.initialize_controllers():
-                self.gui_controller.set_verified()
-
-    def start_verification(self):
         try:
-            self.setup = self.verificator.verify()
-            return True
+            self.setup = load_setup(setup_path)
+            self.param = load_param(param_path)
         except Exception as e:
             log.error("Could not verify. Try modifying a setup or create a new one")
             log.error("The corresponding error arises from: ")
             log.critical(str(e))
-            return False
-        # TODO andere Fehlerbehandlung
+
+    def run(self):
+        if self.initialize_controllers():
+            self.verified = True
+            self.gui_controller.set_verified()
 
     def initialize_controllers(self):
         try:
+
             self.hardware_controller = HardwareController(self.setup)
             self.camera_controller = CameraController(self.setup)
             #self.laser_controller = LaserController(self.setup)
             # TODO datentransfer zu arduino etc.....
             return True
         except Exception as e:
-            log.error("Could not use setup data. Try modifying a setup or create a new one")
+            log.error("Failed to initialize connections.")
             log.error("The corresponding error arises from: ")
             log.critical(str(e))
             return False
@@ -61,7 +58,7 @@ class RunningCommander:
         log.info("starting now...")
         #self.laser_controller.set_commands_run()
         #self.laser_controller.arm_laser()
-        thread = threading.Thread(target=self.hardware_controller.set_commands_running)
+        thread = threading.Thread(target=self.hardware_controller.set_commands)
         thread.start()
         image = self.camera_controller.take_picture()
         #self.hardware_controller.set_commands_running()
@@ -81,6 +78,7 @@ class RunningCommander:
 
     def cont(self):
         # TODO should enable connections again too
+        # if not self.verified: run
         pass
 
 

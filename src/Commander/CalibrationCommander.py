@@ -17,21 +17,8 @@ class CalibrationCommander:
     laser_controller = None
     setup = None
 
-    def __init__(self, gui_controller, verificator):
+    def __init__(self, gui_controller):
         self.gui_controller = gui_controller
-        self.verificator = verificator
-        self.verificator.set_commander(self)
-
-    def start_verification(self):
-        try:
-            self.setup = self.verificator.verify()
-            return True
-        except Exception as e:
-            log.error("Could not verify. Try modifying a setup or create a new one")
-            log.error("The corresponding error arises from: ")
-            log.critical(str(e))
-            return False
-        # TODO andere Fehlerbehandlung
 
     def initialize(self):
         self.hardware_controller = HardwareController()

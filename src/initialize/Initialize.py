@@ -4,9 +4,9 @@
 import time
 
 from src.Controller.GUIController import GUIController
-from src.initialize.Verification import Verification
 from src.Commander.CalibrationCommander import CalibrationCommander
 from src.Commander.RunningCommander import RunningCommander
+from src.util.FileLoader import *
 
 import logging
 
@@ -17,6 +17,9 @@ class Initialize:
 
     gui_controller = None
     commander = None
+    setup = None
+    param = None
+
     mode = ""
     sequence = ""
     setup_path = ""
@@ -34,15 +37,12 @@ class Initialize:
     def init_commander(self):
         time.sleep(1)
         self.mode = self.gui_controller.mode
-        self.sequence = self.gui_controller.sequence
         self.setup_path = self.gui_controller.setup_path
         self.param_path = self.gui_controller.param_path
-        # TODO remove Verificator
-        verificator = Verification(self.mode, self.sequence, self.setup_path, self.param_path)
         if self.mode == "running":
-            self.commander = RunningCommander(self.gui_controller, verificator)
+            self.commander = RunningCommander(self.gui_controller, self.setup_path, self.param_path)
         else:
-            self.commander = CalibrationCommander(self.gui_controller, verificator)
+            self.commander = CalibrationCommander(self.gui_controller, self.setup_path, self.param_path)
         self.gui_controller.set_commander(self.commander)
         self.commander.run()
 
