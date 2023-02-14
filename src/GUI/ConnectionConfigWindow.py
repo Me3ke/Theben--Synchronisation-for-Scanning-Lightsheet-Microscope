@@ -9,7 +9,7 @@ BACKGROUND_COLOR = "#C4CEFF"
 """
 
 
-class ConnectionConfigWindow(QDialog):
+class ConnectionConfigWindow(QWidget):
     def __init__(self, box_list, label_list, title_text, caption_text, sub_caption_text):
         super().__init__()
         self.setWindowTitle(title_text)
@@ -46,3 +46,6 @@ class ConnectionConfigWindow(QDialog):
         layout_outer.addLayout(layout_buttons)
 
         self.setLayout(layout_outer)
+
+        self.show()
+        self.activateWindow()

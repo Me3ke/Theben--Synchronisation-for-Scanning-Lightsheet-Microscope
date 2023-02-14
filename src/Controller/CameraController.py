@@ -15,12 +15,13 @@ class CameraController:
 
     def __init__(self, setup):
         self.setup = setup
+        self.trigger_mode = "external exposure start & software trigger"
 
     def take_picture(self):
         try:
             with pco.Camera() as cam:
                 # TODO output for all lines
-                cam.sdk.set_trigger_mode(self.setup.serial_camera_trigger_mode)
+                cam.sdk.set_trigger_mode(self.trigger_mode)
                 line_time = self.setup.serial_camera_line_time * 1e-06
                 cam.sdk.set_cmos_line_timing('on', line_time)
                 cam.sdk.set_cmos_line_exposure_delay(self.setup.serial_camera_exposure_lines, 0)

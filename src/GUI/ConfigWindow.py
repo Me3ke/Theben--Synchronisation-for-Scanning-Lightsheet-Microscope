@@ -46,6 +46,8 @@ class ConfigWindow(QDialog):
         self.on_finished_check = Event()
         self.on_setup_modify = Event()
         self.on_setup_create = Event()
+        self.show()
+        self.activateWindow()
 
     def init_layout(self):
         self.init_widgets()
@@ -91,7 +93,6 @@ class ConfigWindow(QDialog):
         layout_outer.addLayout(layout_buttons)
 
         self.setLayout(layout_outer)
-        self.show()
 
     def init_buttons(self):
         self.setup_button = QPushButton("Browse")

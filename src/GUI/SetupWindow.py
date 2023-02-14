@@ -10,6 +10,11 @@ WINDOW_TITLE = "Theben: Setup Window"
 BACKGROUND_COLOR = "#C4CEFF"
 DEFAULT_BOX_HEIGHT = 30
 DEFAULT_BOX_WIDTH = 300
+BAUD_RATES = ["75", "300", "1200", "2400", "4800", "9600", "14400", "19200", "28800",
+              "38400", "57600", "115200"]
+PARITIES = ["None", "Odd", "Even", "Mark", "Space"]
+STOP_BITS = ["1", "1.5", "2"]
+BYTE_SIZE = ["5", "6", "7", "8"]
 
 log = logging.getLogger("log")
 
@@ -45,6 +50,11 @@ class SetupWindow(QWidget):
         self.setContentsMargins(10, 10, 10, 10)
         self.setStyleSheet(f"background-color: {BACKGROUND_COLOR};")
         self.init_layout()
+        self.create_hc_1_connection_widgets()
+        self.create_laser_connection_widgets()
+        self.load(self.setup)
+        self.show()
+        self.activateWindow()
 
     def init_layout(self):
         layout_form = QFormLayout()
@@ -83,14 +93,13 @@ class SetupWindow(QWidget):
         layout_outer.addLayout(layout_buttons)
 
         self.setLayout(layout_outer)
-        self.show()
 
     def init_boxes(self):
         box_size = QtCore.QSize(DEFAULT_BOX_WIDTH, DEFAULT_BOX_HEIGHT)
 
         hc_1_port_box = QTextEdit()
         laser_port_box = QTextEdit()
-
+        # TODO rechange names maybe
         hc_1_timeout_box = QTextEdit()
         hc_1_camera_trigger_pin_box = QTextEdit()
         hc_1_maxSteps_box = QTextEdit()
@@ -121,55 +130,19 @@ class SetupWindow(QWidget):
         for text_box in text_box_list:
             text_box.setFixedSize(box_size)
 
-        # TODO default reinladen
-
-        """
-        self.hc_1_port_box.setText("")
-        self.hc_1_timeout_box.setText("")
-        self.hc_1_camera_trigger_pin_box.setText("")
-        self.hc_1_maxSteps_box.setText("")
-        self.hc_1_highPos_box.setText("")
-        self.hc_1_lowPos_box.setText("")
-        self.hc_1_picHeight_box.setText("")
-        self.hc_1_calibThreshold_box.setText("")
-        self.camera_exposure_time_box.setText("")
-        self.camera_line_time_box.setText("")
-        self.camera_exposure_lines_box.setText("")
-        self.camera_line_time_box.setText("")
-        self.laser_port_box.setText("")
-        self.laser_timeout_box.setText("")
-        self.laser_power_box.setText("")
-        """
-
         hc_1_camera_trigger_mode_box.addItems(["rising", "falling"])
         camera_trigger_mode_box.addItems(["rising", "falling"])
         laser_channel_box.addItems(["1", "2"])
 
         self.box_list = text_box_list + combo_box_list
-
-        hc_1_baudrate_box = QComboBox()
-        hc_1_parity_box = QComboBox()
-        hc_1_stopbits_box = QComboBox()
-        hc_1_bytesize_box = QComboBox()
-
-        hc_1_baudrate_box.addItems(["rising", "falling"])
-        hc_1_parity_box.addItems(["rising", "falling"])
-        hc_1_stopbits_box.addItems(["1", "2"])
-        hc_1_bytesize_box.addItems(["1", "2"])
-
-        # TODO auslagern
-
-        self.hc_1_box_list = [hc_1_baudrate_box, hc_1_parity_box,
-                              hc_1_stopbits_box, hc_1_bytesize_box]
-
-
+        # TODO improve order
 
     def init_labels(self):
         hc_1_port_label = QLabel(self)
         hc_1_port_label.setText("Select hardware controller serial port: ")
 
         laser_port_label = QLabel(self)
-        laser_port_label.setText("Select laser serial port")
+        laser_port_label.setText("Select laser serial port: ")
 
         hc_1_timeout_label = QLabel(self)
         hc_1_timeout_label.setText("Select hardware controller timeout threshold in s: ")
@@ -190,16 +163,16 @@ class SetupWindow(QWidget):
         hc_1_picHeight_label.setText("Select default result picture height in px: ")
 
         hc_1_calibThreshold_label = QLabel(self)
-        hc_1_calibThreshold_label.setText("Select calibration maximum deviation in ms: ")
+        hc_1_calibThreshold_label.setText("Select calibration maximum deviation in µs: ")
 
         camera_exposure_time_label = QLabel(self)
-        camera_exposure_time_label.setText("Select camera exposure time for non lightsheet mode pictures in ms")
+        camera_exposure_time_label.setText("Select camera exposure time for non lightsheet mode pictures in ms: ")
 
         camera_line_time_label = QLabel(self)
-        camera_line_time_label.setText("Select camera line time in µs")
+        camera_line_time_label.setText("Select camera line time in µs: ")
 
         camera_exposure_lines_label = QLabel(self)
-        camera_exposure_lines_label.setText("Select camera exposure lines")
+        camera_exposure_lines_label.setText("Select camera exposure lines: ")
 
         laser_timeout_label = QLabel(self)
         laser_timeout_label.setText("Select laser timeout threshold in s: ")
@@ -222,11 +195,12 @@ class SetupWindow(QWidget):
                            laser_port_label, laser_timeout_label, laser_power_label,
                            hc_1_camera_trigger_mode_label, camera_trigger_mode_label, laser_channel_label]
 
+    def create_hc_1_connection_widgets(self):
         hc_1_baudrate_label = QLabel(self)
         hc_1_parity_label = QLabel(self)
         hc_1_stopbits_label = QLabel(self)
         hc_1_bytesize_label = QLabel(self)
-        # TODO auslagern
+
         hc_1_baudrate_label.setText("Select baudrate: ")
         hc_1_parity_label.setText("Select parity: ")
         hc_1_stopbits_label.setText("Select stopbits: ")
@@ -235,17 +209,76 @@ class SetupWindow(QWidget):
         self.hc_1_label_list = [hc_1_baudrate_label, hc_1_parity_label,
                                 hc_1_stopbits_label, hc_1_bytesize_label]
 
+        hc_1_baudrate_box = QComboBox()
+        hc_1_parity_box = QComboBox()
+        hc_1_stopbits_box = QComboBox()
+        hc_1_bytesize_box = QComboBox()
+
+        hc_1_baudrate_box.addItems(BAUD_RATES)
+        hc_1_parity_box.addItems(PARITIES)
+        hc_1_stopbits_box.addItems(STOP_BITS)
+        hc_1_bytesize_box.addItems(BYTE_SIZE)
+
+        self.hc_1_box_list = [hc_1_baudrate_box, hc_1_parity_box,
+                              hc_1_stopbits_box, hc_1_bytesize_box]
+
+    def create_laser_connection_widgets(self):
+        laser_baudrate_label = QLabel(self)
+        laser_parity_label = QLabel(self)
+        laser_stopbits_label = QLabel(self)
+        laser_bytesize_label = QLabel(self)
+
+        laser_baudrate_label.setText("Select baudrate: ")
+        laser_parity_label.setText("Select parity: ")
+        laser_stopbits_label.setText("Select stopbits: ")
+        laser_bytesize_label.setText("Select bytesize: ")
+
+        self.laser_label_list = [laser_baudrate_label, laser_parity_label,
+                                 laser_stopbits_label, laser_bytesize_label]
+
+        laser_baudrate_box = QComboBox()
+        laser_parity_box = QComboBox()
+        laser_stopbits_box = QComboBox()
+        laser_bytesize_box = QComboBox()
+
+        laser_baudrate_box.addItems(BAUD_RATES)
+        laser_parity_box.addItems(PARITIES)
+        laser_stopbits_box.addItems(STOP_BITS)
+        laser_bytesize_box.addItems(BYTE_SIZE)
+
+        self.laser_box_list = [laser_baudrate_box, laser_parity_box,
+                               laser_stopbits_box, laser_bytesize_box]
+
     def init_buttons(self):
         self.hc_button = QPushButton("More")
+        self.hc_button.setToolTip("Configure connection")
         self.hc_button.clicked.connect(self.show_hc_boxes)
 
         self.laser_button = QPushButton("More")
-        self.laser_button.clicked.connect(self.n)
+        self.laser_button.setToolTip("Configure connection")
+        self.laser_button.clicked.connect(self.show_laser_boxes)
 
         buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         self.button_box = QDialogButtonBox(buttons)
         self.button_box.accepted.connect(self.n)
         self.button_box.rejected.connect(self.close)
+
+    def load(self, setup):
+        lines = setup.split('\n')
+        box_list_max = len(lines)
+        for i in range(2, box_list_max):
+            if lines[i] == "":
+                break
+            value = ((lines[i].split(' = '))[1]).replace('"', '')
+            if value.startswith('serial'):
+                continue
+            box = self.box_list[i-2]
+            if type(box) == QTextEdit:
+                box.setText(value)
+            elif type(box) == QComboBox:
+                index = box.findText(value)
+                if index != -1:
+                    box.setCurrentIndex(index)
 
     def n(self):
         pass
@@ -258,8 +291,14 @@ class SetupWindow(QWidget):
                            "settings. Changing these values can result in a broken connection!"
         self.hc_window = ConnectionConfigWindow(self.hc_1_box_list, self.hc_1_label_list, title_text,
                                                 caption_text, sub_caption_text)
-        self.hc_window.show()
-     # TODO für laser wiederholen
+
+    def show_laser_boxes(self):
+        title_text = "Theben: Laser connection window"
+        caption_text = "Configure connection for laser: "
+        sub_caption_text = "Warning: Connection will not be adjusted in the laser " \
+                           "settings. Changing these values can result in a broken connection!"
+        self.laser_window = ConnectionConfigWindow(self.laser_box_list, self.laser_label_list, title_text,
+                                                   caption_text, sub_caption_text)
 
 
 

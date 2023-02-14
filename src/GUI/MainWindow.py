@@ -59,6 +59,8 @@ class MainWindow(QWidget):
         self.on_brightness_changed = Event()
         self.on_contrast_changed = Event()
         self.on_gamma_changed = Event()
+        self.show()
+        self.activateWindow()
 
     def init_layout(self):
         self.log_textbox = self.init_log_textbox()
@@ -97,7 +99,6 @@ class MainWindow(QWidget):
         button_box.addWidget(self.stop_button)
 
         self.setLayout(layout_outer)
-        self.show()
 
     def init_log_textbox(self):
         log_textbox = QTextEditLogger(self)

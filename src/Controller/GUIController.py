@@ -42,12 +42,11 @@ class GUIController:
     setup_path = ""
     param_path = ""
 
-    setup_to_modify = None
-
     image_array_resized = None
     original_array = None
     original_height = 0
     original_width = 0
+
     brightness = 0
     contrast = 1
     gamma = 1
@@ -80,7 +79,6 @@ class GUIController:
             self.image_array_resized = resize_and_normalize(image_array)
             pixmap = convert_array_to_pixmap(self.image_array_resized)
             self.main_window.show_image(pixmap)
-            self.main_window.show()
         except Exception:
             raise InitializeException("Could not initialize main window. Probably error with ./resources/default.tif")
         time.sleep(0.5)
@@ -164,13 +162,11 @@ class GUIController:
                 setup = read_setup(file_name[0])
                 self.setup_window = SetupWindow(file_name[0], setup)
                 self.config_window.setup_box.setText(file_name[0])
-                self.setup_window.show()
             else:
                 log.warning("No path specified")
         else:
             setup = read_setup(setup_path)
             self.setup_window = SetupWindow(setup_path, setup)
-            self.setup_window.show()
 
     def create_setup(self):
         setup_path = self.config_window.setup_path
@@ -180,13 +176,11 @@ class GUIController:
                 setup = read_setup('./resources/setups/setup_default.py')
                 self.setup_window = SetupWindow(file_name[0], setup)
                 self.config_window.setup_box.setText(file_name[0])
-                self.setup_window.show()
             else:
                 log.warning("No path specified")
         else:
             setup = read_setup('./resources/setups/setup_default.py')
             self.setup_window = SetupWindow(setup_path, setup)
-            self.setup_window.show()
 
     def add_subscriber_for_main_window_event(self, obj_method):
         self.on_start_main_window += obj_method
