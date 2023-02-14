@@ -1,15 +1,16 @@
-"""
-
-"""
 import logging
 import threading
-import numpy as np
+
 from src.Controller.CameraController import CameraController
 from src.Controller.HardwareController import HardwareController
 from src.Controller.LaserController import LaserController
 from src.util.FileLoader import *
 
 log = logging.getLogger("log")
+
+"""
+
+"""
 
 
 class RunningCommander:
@@ -37,6 +38,7 @@ class RunningCommander:
         if self.initialize_controllers():
             self.verified = True
             self.gui_controller.set_verified()
+            log.info("Finished. Data has been verified")
 
     def initialize_controllers(self):
         try:
@@ -61,7 +63,7 @@ class RunningCommander:
         thread.start()
 
     def start(self):
-        log.info("starting now...")
+        log.info("Starting...")
         if self.stopped:
             log.warning("After stopping the Application, you need to continue first, before restarting.")
         else:
@@ -73,8 +75,11 @@ class RunningCommander:
                 log.error("Camera could not make an image, make sure the parameters are valid.")
             else:
                 self.gui_controller.update_image(image)
-            elapsed_time = self.hardware_controller.get_single_command()
-            log.info("The galvo needed " + elapsed_time + "microseconds")
+            try:
+                elapsed_time = self.hardware_controller.get_single_command()
+                log.info("The galvanometer needed " + elapsed_time + "microseconds")
+            except Exception as ex:
+                log.error(ex)
         """
         center_image = np.sum(image, axis=1)
         max = np.amax(center_image)
@@ -86,6 +91,7 @@ class RunningCommander:
 
     def stop(self):
         if self.verified:
+            log.info("Stopping...")
             self.laser_controller.stop_laser()
             self.hardware_controller.stop()
             self.stopped = True
@@ -96,10 +102,7 @@ class RunningCommander:
 
     def cont(self):
         if self.stopped:
-            self.hardware_controller.cont()
+            log.info("Continue...")
             self.verified = False
             self.stopped = False
             self.run()
-
-
-# TODO exit codes

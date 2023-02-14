@@ -5,6 +5,9 @@ import importlib
 
 log = logging.getLogger("log")
 
+"""
+"""
+
 
 def load_setup(path):
     setup_name = os.path.basename(path)
@@ -21,7 +24,7 @@ def load_setup(path):
         return importlib.import_module(import_path)
     except Exception as e:
         raise e
-        # TODO möglweise eigene Exception
+        # TODO custom exception?
 
 
 def read_setup(path):

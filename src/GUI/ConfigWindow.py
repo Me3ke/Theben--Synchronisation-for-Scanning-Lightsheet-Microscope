@@ -1,5 +1,6 @@
 import logging
 import os
+
 from src.util.Event import Event
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
@@ -12,6 +13,9 @@ DEFAULT_BOX_WIDTH = 300
 
 log = logging.getLogger("log")
 home_dir = os.path.expanduser("~/Desktop")
+
+"""
+"""
 
 
 class ConfigWindow(QDialog):
@@ -26,13 +30,14 @@ class ConfigWindow(QDialog):
     param_button = None
     button_box = None
 
-    # TODO remove sequence
     mode = ""
     setup_path = ""
     param_path = ""
 
-    def __init__(self):
+    def __init__(self, setup_path, param_path):
         super().__init__()
+        self.setup_path = setup_path
+        self.param_path = param_path
         self.setWindowTitle(WINDOW_TITLE)
         self.setWindowIcon(QtGui.QIcon(ICON_NAME))
         self.setContentsMargins(10, 10, 10, 10)
@@ -112,10 +117,12 @@ class ConfigWindow(QDialog):
 
         self.setup_box = QTextEdit()
         self.setup_box.setFixedSize(box_size)
+        self.setup_box.setText(self.setup_path)
         self.setup_box.setObjectName('setup')
 
         self.param_box = QTextEdit()
         self.param_box.setFixedSize(box_size)
+        self.param_box.setText(self.param_path)
         self.param_box.setObjectName('param')
 
     def browse(self, target):
@@ -127,9 +134,9 @@ class ConfigWindow(QDialog):
         self.mode = self.mode_box.currentText()
         self.setup_path = self.setup_box.toPlainText()
         self.param_path = self.param_box.toPlainText()
-        if not os.path.exists(self.setup_path):
+        if (not os.path.exists(self.setup_path)) or self.setup_path == "":
             self.show_message_box("Setup file path not found")
-        elif self.mode == "running" and not os.path.exists(self.param_path):
+        elif self.mode == "running" and (not os.path.exists(self.param_path) or self.param_path == ""):
             self.show_message_box("Parameter file path not found")
         else:
             if self.mode == "calibration" and not self.param_path == "":
@@ -150,9 +157,11 @@ class ConfigWindow(QDialog):
         msg_box.exec()
 
     def modify_setup(self):
+        self.setup_path = self.setup_box.toPlainText()
         self.on_setup_modify()
 
     def create_setup(self):
+        self.setup_path = self.setup_box.toPlainText()
         self.on_setup_create()
 
     def add_subscriber_for_modify_setup_event(self, obj_method):

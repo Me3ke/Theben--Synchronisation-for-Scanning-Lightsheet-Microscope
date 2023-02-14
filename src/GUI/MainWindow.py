@@ -1,5 +1,6 @@
 import logging
 import os
+
 from src.util.Event import Event
 from src.GUI.LogTextEdit import QTextEditLogger
 from src.GUI.LogFormatter import CustomFormatter

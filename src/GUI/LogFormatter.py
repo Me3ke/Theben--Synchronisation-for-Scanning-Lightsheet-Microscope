@@ -8,7 +8,7 @@ inspired by https://stackoverflow.com/questions/384076/how-can-i-color-python-lo
 class CustomFormatter(logging.Formatter):
 
     grey = "<span style=\" font-size:8pt; font-weight:600; color:#808080;\" >"
-    yellow = "<span style=\" font-size:8pt; font-weight:600; color:#ffff00;\" >"
+    yellow = "<span style=\" font-size:8pt; font-weight:600; color:#888800;\" >"
     red = "<span style=\" font-size:8pt; font-weight:600; color:#ff0000;\" >"
     bold_red = "<span style=\" font-size:10pt; font-weight:800; color:#ff0000;\" >"
     reset = "</span>"

@@ -1,16 +1,17 @@
-"""
-
-"""
 import time
+import logging
 
 from src.Controller.GUIController import GUIController
 from src.Commander.CalibrationCommander import CalibrationCommander
 from src.Commander.RunningCommander import RunningCommander
 from src.util.FileLoader import *
-
-import logging
+from src.Exceptions.InitializeException import InitializeException
 
 log = logging.getLogger("log")
+
+"""
+
+"""
 
 
 class Initialize:
@@ -26,13 +27,12 @@ class Initialize:
     param_path = ""
 
     def __init__(self, argv):
-        # fange etwas mit den Argumenten an
-        self.init_config()
-
-    def init_config(self):
         self.gui_controller = GUIController(self)
         self.gui_controller.add_subscriber_for_main_window_event(self.init_commander)
-        self.gui_controller.start_config_window()
+        if len(argv) == 3:
+            self.gui_controller.start_config_window(argv[1], argv[2])
+        else:
+            self.gui_controller.start_config_window("", "")
 
     def init_commander(self):
         time.sleep(1)
@@ -43,12 +43,18 @@ class Initialize:
             self.commander = RunningCommander(self.gui_controller, self.setup_path, self.param_path)
         else:
             self.commander = CalibrationCommander(self.gui_controller, self.setup_path, self.param_path)
-        self.gui_controller.set_commander(self.commander)
-        self.commander.run()
+        try:
+            self.gui_controller.set_commander(self.commander)
+            self.commander.run()
+        except InitializeException as ex:
+            log.critical("Could not initialize main window: ")
+            log.critical(ex)
+            exit(100)
 
     def stop(self):
         if self.commander is None:
-            log.critical("quitting without commander")
+            log.warning("Terminating program")
+            exit
         else:
             self.commander.stop()
 

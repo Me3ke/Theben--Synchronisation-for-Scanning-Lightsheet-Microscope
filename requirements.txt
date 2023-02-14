@@ -1,0 +1,6 @@
+PyQt6~=6.4.0
+numpy~=1.24.1
+opencv-python~=4.7.0.68
+pyserial~=3.5
+matplotlib~=3.6.3
+pco~=0.1.3

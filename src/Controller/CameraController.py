@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import pco
 import logging
-import random
 
 log = logging.getLogger("log")
+
+"""
+"""
 
 
 class CameraController:
@@ -17,12 +19,13 @@ class CameraController:
     def take_picture(self):
         try:
             with pco.Camera() as cam:
+                # TODO output for all lines
                 cam.sdk.set_trigger_mode(self.setup.serial_camera_trigger_mode)
                 line_time = self.setup.serial_camera_line_time * 1e-06
                 cam.sdk.set_cmos_line_timing('on', line_time)
                 cam.sdk.set_cmos_line_exposure_delay(self.setup.serial_camera_exposure_lines, 0)
-                print(cam.sdk.get_cmos_line_timing())
-                print(cam.sdk.get_cmos_line_exposure_delay())
+                log.debug(cam.sdk.get_cmos_line_timing())
+                log.debug(cam.sdk.get_cmos_line_exposure_delay())
                 cam.record()
                 self.image, meta = cam.image()
                 plt.imshow(self.image, cmap='gray')
@@ -30,12 +33,14 @@ class CameraController:
                 # TODO remove later
                 return self.image
         except ValueError:
+            # TODO examine if this is right
             log.error("camera is busy. Make sure the camera is not in use and restart the process")
             return None
         except Exception as ex:
             log.error(ex)
             return None
 
+    # TODO remove?
     def config_camera(self):
         self.camera.configuration = {
             'trigger': 'external exposure start & software trigger',

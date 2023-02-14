@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import sys
 import threading
-import os
 
 from PyQt6.QtCore import QFile, QIODeviceBase
 from PyQt6.QtWidgets import QApplication, QFileDialog
@@ -14,6 +13,7 @@ from src.GUI.ConfigWindow import ConfigWindow
 from src.GUI.SetupWindow import SetupWindow
 from src.util.Event import Event
 from src.util.FileLoader import *
+from src.Exceptions.InitializeException import InitializeException
 
 FIRST_IMAGE_NAME = './resources/default.tif'
 DEFAULT_IMAGE_WIDTH = 1024
@@ -56,10 +56,10 @@ class GUIController:
         self.on_start_main_window = Event()
         self.initializer = initializer
 
-    def start_config_window(self):
-        thread = threading.Thread(target=self.show_config_window, name='Config_Window')
+    def start_config_window(self, setup_path, param_path):
+        thread = threading.Thread(target=self.show_config_window, name='Config_Window', args=(setup_path, param_path))
         thread.start()
-        time.sleep(1)
+        time.sleep(0.5)
 
         self.config_window.add_subscriber_for_finished_check_event(self.start_main_window)
         self.config_window.add_subscriber_for_modify_setup_event(self.modify_setup)
@@ -75,23 +75,24 @@ class GUIController:
 
         self.config_window.close()
         self.main_window = MainWindow()
-        image_array = cv2.imread(FIRST_IMAGE_NAME, -1)
-        self.image_array_resized = resize_and_normalize(image_array)
-        pixmap = convert_array_to_pixmap(self.image_array_resized)
-        self.main_window.show_image(pixmap)
-        self.main_window.show()
-
+        try:
+            image_array = cv2.imread(FIRST_IMAGE_NAME, -1)
+            self.image_array_resized = resize_and_normalize(image_array)
+            pixmap = convert_array_to_pixmap(self.image_array_resized)
+            self.main_window.show_image(pixmap)
+            self.main_window.show()
+        except Exception:
+            raise InitializeException("Could not initialize main window. Probably error with ./resources/default.tif")
         time.sleep(0.5)
-
         self.main_window.add_subscriber_for_save_event(self.save)
         self.main_window.add_subscriber_for_brightness_event(self.change_brightness)
         self.main_window.add_subscriber_for_contrast_event(self.change_contrast)
         self.main_window.add_subscriber_for_gamma_event(self.change_gamma)
 
-    def show_config_window(self):
+    def show_config_window(self, setup_path, param_path):
         app = QApplication(sys.argv)
         app.aboutToQuit.connect(self.initializer.stop)
-        self.config_window = ConfigWindow()
+        self.config_window = ConfigWindow(setup_path, param_path)
         sys.exit(app.exec())
 
     def save(self):
@@ -106,6 +107,7 @@ class GUIController:
             file = QFile(path_to_file)
             if file.open(QIODeviceBase.OpenModeFlag.WriteOnly):
                 pixmap.save(file)
+                log.info("File saved")
             else:
                 log.error("File could not be opened, make sure the file is closed and files may be created")
 
@@ -155,18 +157,35 @@ class GUIController:
         self.main_window.show_image(pixmap)
 
     def modify_setup(self):
-        file_name = QFileDialog.getOpenFileName(None, "Open File", home_dir)
-        if file_name[0]:
-            setup = read_setup(file_name[0])
-            self.setup_window = SetupWindow(file_name[0], setup)
-            self.config_window.setup_box.setText(file_name[0])
+        setup_path = self.config_window.setup_path
+        if setup_path == "":
+            file_name = QFileDialog.getOpenFileName(None, "Open File", home_dir)
+            if file_name[0]:
+                setup = read_setup(file_name[0])
+                self.setup_window = SetupWindow(file_name[0], setup)
+                self.config_window.setup_box.setText(file_name[0])
+                self.setup_window.show()
+            else:
+                log.warning("No path specified")
+        else:
+            setup = read_setup(setup_path)
+            self.setup_window = SetupWindow(setup_path, setup)
             self.setup_window.show()
 
     def create_setup(self):
-        file_name = QFileDialog.getSaveFileName(None, "Save File", home_dir)
-        if file_name[0]:
-            self.setup_window = SetupWindow(file_name[0], None)
-            self.config_window.setup_box.setText(file_name[0])
+        setup_path = self.config_window.setup_path
+        if setup_path == "":
+            file_name = QFileDialog.getSaveFileName(None, "Save File", home_dir)
+            if file_name[0]:
+                setup = read_setup('./resources/setups/setup_default.py')
+                self.setup_window = SetupWindow(file_name[0], setup)
+                self.config_window.setup_box.setText(file_name[0])
+                self.setup_window.show()
+            else:
+                log.warning("No path specified")
+        else:
+            setup = read_setup('./resources/setups/setup_default.py')
+            self.setup_window = SetupWindow(setup_path, setup)
             self.setup_window.show()
 
     def add_subscriber_for_main_window_event(self, obj_method):
@@ -177,15 +196,17 @@ class GUIController:
 
     def set_commander(self, commander):
         self.commander = commander
-        log.info("Commander has been set")
-        self.main_window.add_subscriber_for_start_event(self.commander.start_thread)
-        self.main_window.add_subscriber_for_stop_event(self.commander.stop)
-        self.main_window.add_subscriber_for_continue_event(self.commander.cont_thread)
+        log.debug("Commander has been set")
+        if self.main_window is None:
+            raise InitializeException("Could not initialize main window")
+        else:
+            self.main_window.add_subscriber_for_start_event(self.commander.start_thread)
+            self.main_window.add_subscriber_for_stop_event(self.commander.stop)
+            self.main_window.add_subscriber_for_continue_event(self.commander.cont_thread)
 
     def set_verified(self):
         self.verified = True
         self.main_window.verified = True
-        log.info("Data has been verified")
 
 
 def resize_and_normalize(array):

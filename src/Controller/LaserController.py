@@ -2,6 +2,8 @@ import serial
 import time
 import logging
 
+from src.Exceptions.FailedCommunicationException import FailedCommunicationException
+
 log = logging.getLogger("log")
 
 """
@@ -55,7 +57,6 @@ class LaserController:
         if self.serial_connection.isOpen():
             self.serial_connection.write(command_encoded)
         else:
-            raise Exception
-            # TODO custom exception
+            raise FailedCommunicationException("Laser connection closed")
         time.sleep(0.5)
 

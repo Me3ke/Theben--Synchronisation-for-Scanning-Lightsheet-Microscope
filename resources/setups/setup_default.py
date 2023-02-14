@@ -7,14 +7,15 @@ serial_hc_1_parity = serial.PARITY_NONE
 serial_hc_1_stopbits = serial.STOPBITS_ONE
 serial_hc_1_bytesize = serial.EIGHTBITS
 serial_hc_1_timeout = 5
+
 serial_hc_1_camera_trigger_pin = "2"
 serial_hc_1_camera_trigger_curve_mode = "rising"
 serial_hc_1_maxSteps = "30"
+# TODO replace to voltage range that is calculated to these values
 serial_hc_1_highPos = "4000"
+# TODO maybe remove and add nullPos to param, if it is possible to read where voltage is zero
 serial_hc_1_midPos = "1950"
 serial_hc_1_lowPos = "0100"
-serial_hc_1_maxPicPos = "3400"
-serial_hc_1_minPicPos = "0400"
 serial_hc_1_picHeight = "2048"
 serial_hc_1_calibThreshold = "1500"
 
