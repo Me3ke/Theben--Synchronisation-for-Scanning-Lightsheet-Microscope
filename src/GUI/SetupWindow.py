@@ -178,7 +178,7 @@ class SetupWindow(QWidget):
         laser_timeout_label.setText("Select laser timeout threshold in s: ")
 
         laser_power_label = QLabel(self)
-        laser_power_label.setText("Select laser power: ")
+        laser_power_label.setText("Select laser power in mW: ")
 
         hc_1_camera_trigger_mode_label = QLabel(self)
         hc_1_camera_trigger_mode_label.setText("Select send camera trigger pulse polarity: ")

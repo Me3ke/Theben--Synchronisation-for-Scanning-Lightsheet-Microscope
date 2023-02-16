@@ -102,6 +102,36 @@ class HardwareController:
             log.error(ex)
             self.state = 0
 
+    def send_and_receive(self, command):
+        try:
+            self.send_command(command)
+            answer = self.get_single_command()
+            log.debug(answer)
+            if answer != 'received\r\n':
+                raise TimeoutException("No answer from hardware controller")
+        except Exception as ex:
+            log.error(ex)
+            self.state = 0
+    def calibration_trigger(self):
+        try:
+            self.send_command("6")
+            answer = self.get_single_command()
+            if answer != 'received\r\n':
+                raise TimeoutException("No answer from hardware controller")
+        except Exception as ex:
+            log.error(ex)
+            self.state = 0
+
+    def calibration_finish(self):
+        try:
+            self.send_command("7")
+            answer = self.get_single_command()
+            if answer != 'received\r\n':
+                raise TimeoutException("No answer from hardware controller")
+        except Exception as ex:
+            log.error(ex)
+            self.state = 0
+
     def stop(self):
         log.debug("Stopping hardware controller")
         try:
@@ -118,5 +148,5 @@ class HardwareController:
         if self.serial_connection.is_open:
             self.serial_connection.write(command_encoded)
         else:
-            raise FailedCommunicationException("could not send to" + self.serial_connection.name)
+            raise FailedCommunicationException("could not send to " + self.serial_connection.name)
         time.sleep(0.2)

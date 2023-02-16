@@ -58,7 +58,7 @@ class GUIController:
     def start_config_window(self, setup_path, param_path):
         thread = threading.Thread(target=self.show_config_window, name='Config_Window', args=(setup_path, param_path))
         thread.start()
-        time.sleep(0.5)
+        time.sleep(1)
 
         self.config_window.add_subscriber_for_finished_check_event(self.start_main_window)
         self.config_window.add_subscriber_for_modify_setup_event(self.modify_setup)
@@ -110,6 +110,7 @@ class GUIController:
                 log.error("File could not be opened, make sure the file is closed and files may be created")
 
     # TODO add useful logs
+    # TODO block buttons
     # TODO adjust contrast brightness etc values
     def change_brightness(self):
         self.brightness = self.main_window.brightness_slider.value()

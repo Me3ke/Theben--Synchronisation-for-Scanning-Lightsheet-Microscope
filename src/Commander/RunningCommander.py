@@ -30,7 +30,7 @@ class RunningCommander:
             self.setup = load_setup(setup_path)
             self.param = load_param(param_path)
         except Exception as e:
-            log.error("Could not verify. Try modifying a setup or create a new one")
+            log.error("Could not verify. Try modifying a setup or create a new one. Or parameter file corrupted.")
             log.error("The corresponding error arises from: ")
             log.critical(str(e))
 
@@ -54,6 +54,7 @@ class RunningCommander:
             log.error("Failed to initialize connections.")
             log.error("The corresponding error arises from: ")
             log.critical(str(e))
+            self.stop()
             self.verified = False
             self.stopped = True
             return False
@@ -70,7 +71,7 @@ class RunningCommander:
             self.laser_controller.arm_laser()
             thread = threading.Thread(target=self.hardware_controller.start)
             thread.start()
-            image = self.camera_controller.take_picture()
+            image = self.camera_controller.take_picture_rolling_shutter()
             if image is None:
                 log.error("Camera could not make an image, make sure the parameters are valid.")
             else:
