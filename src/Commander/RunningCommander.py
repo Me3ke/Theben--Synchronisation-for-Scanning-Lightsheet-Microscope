@@ -1,5 +1,6 @@
 import logging
 import threading
+import time
 
 from src.Controller.CameraController import CameraController
 from src.Controller.HardwareController import HardwareController
@@ -21,6 +22,7 @@ class RunningCommander:
     setup = None
     verified = False
     stopped = False
+    started = False
     max_list = []
     mode = '2'
 
@@ -54,7 +56,6 @@ class RunningCommander:
             log.error("Failed to initialize connections.")
             log.error("The corresponding error arises from: ")
             log.critical(str(e))
-            self.stop()
             self.verified = False
             self.stopped = True
             return False
@@ -65,44 +66,49 @@ class RunningCommander:
 
     def start(self):
         log.info("Starting...")
-        if self.stopped:
-            log.warning("After stopping the Application, you need to continue first, before restarting.")
-        else:
-            self.laser_controller.arm_laser()
-            thread = threading.Thread(target=self.hardware_controller.start)
-            thread.start()
-            image = self.camera_controller.take_picture_rolling_shutter()
-            if image is None:
-                log.error("Camera could not make an image, make sure the parameters are valid.")
+        if not self.started:
+            if self.stopped:
+                log.warning("After stopping the Application, you need to continue first, before restarting.")
             else:
-                self.gui_controller.update_image(image)
-            try:
-                elapsed_time = self.hardware_controller.get_single_command()
-                log.info("The galvanometer needed " + elapsed_time + "microseconds")
-            except Exception as ex:
-                log.error(ex)
-        """
-        center_image = np.sum(image, axis=1)
-        max = np.amax(center_image)
-        for i in range(0, image.shape[1]):
-            if center_image[i] == max:
-                self.max_list.append(i)
-                print(i)
-        """
+                self.started = True
+                self.laser_controller.arm_laser()
+                thread = threading.Thread(target=self.hardware_controller.start)
+                thread.start()
+                image = self.camera_controller.take_picture(False)
+                if image is None:
+                    log.error("Camera could not make an image.")
+                    time.sleep(2)
+                    self.stop()
+                else:
+                    self.gui_controller.update_image(image)
+                    try:
+                        elapsed_time = self.hardware_controller.get_single_command()
+                        log.info("The galvanometer needed " + elapsed_time + "microseconds")
+                    except Exception as ex:
+                        log.error(ex)
+                    finally:
+                        self.laser_controller.turn_off()
+                        self.started = False
+        else:
+            log.warning("Already started")
 
     def stop(self):
-        if self.verified:
-            log.info("Stopping...")
-            self.laser_controller.stop_laser()
-            self.hardware_controller.stop()
-            self.stopped = True
+        if not self.stopped:
+            if self.verified:
+                log.info("Stopping...")
+                self.stopped = True
+                self.started = False
+                self.camera_controller.stop()
+                self.laser_controller.stop()
+                self.hardware_controller.stop()
+
 
     def cont_thread(self):
         thread = threading.Thread(target=self.cont, name='Restart')
         thread.start()
 
     def cont(self):
-        if self.stopped:
+        if self.stopped and not self.started:
             log.info("Continue...")
             self.verified = False
             self.stopped = False

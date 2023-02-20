@@ -35,7 +35,7 @@ class LaserController:
         self.command_list = ["ch " + str(self.laser_channel) + " pow " + str(self.laser_power) + "\r",
                              "en " + str(self.laser_channel) + "\r", "la on\r"]
 
-    def stop_laser(self):
+    def stop(self):
         log.debug("stopping laser")
         try:
             self.send_command("la off\r")
@@ -43,6 +43,13 @@ class LaserController:
             log.error(ex)
         finally:
             self.serial_connection.close()
+
+    def turn_off(self):
+        log.debug("turn off laser")
+        try:
+            self.send_command("la off\r")
+        except Exception as ex:
+            log.error(ex)
 
     def arm_laser(self):
         log.debug("starting laser")

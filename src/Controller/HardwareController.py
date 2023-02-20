@@ -30,13 +30,17 @@ class HardwareController:
         time.sleep(2)
 
     def init_hc(self):
-        self.send_command(str(self.state))
-        answer = self.get_single_command()
+        try:
+            self.send_command(str(self.state))
+            answer = self.get_single_command()
+        except Exception:
+            raise FailedCommunicationException("HC invalid, probably wrong .ino loaded")
         if answer == 'Theben\r\n':
             self.state = 1
             log.info("Hardware controller connection established. HC is valid.")
         else:
             raise FailedCommunicationException("HC invalid, probably wrong .ino loaded")
+
 
     def set_commands(self, setup, param, mode):
         if setup.serial_hc_1_camera_trigger_curve_mode == "rising":
@@ -107,25 +111,6 @@ class HardwareController:
             self.send_command(command)
             answer = self.get_single_command()
             log.debug(answer)
-            if answer != 'received\r\n':
-                raise TimeoutException("No answer from hardware controller")
-        except Exception as ex:
-            log.error(ex)
-            self.state = 0
-    def calibration_trigger(self):
-        try:
-            self.send_command("6")
-            answer = self.get_single_command()
-            if answer != 'received\r\n':
-                raise TimeoutException("No answer from hardware controller")
-        except Exception as ex:
-            log.error(ex)
-            self.state = 0
-
-    def calibration_finish(self):
-        try:
-            self.send_command("7")
-            answer = self.get_single_command()
             if answer != 'received\r\n':
                 raise TimeoutException("No answer from hardware controller")
         except Exception as ex:
