@@ -164,13 +164,13 @@ class GUIController:
         if setup_path == "":
             file_name = QFileDialog.getOpenFileName(None, "Open File", home_dir)
             if file_name[0]:
-                setup = read_setup(file_name[0])
+                setup = read(file_name[0])
                 self.setup_window = SetupWindow(file_name[0], setup)
                 self.config_window.setup_box.setText(file_name[0])
             else:
                 log.warning("No path specified")
         else:
-            setup = read_setup(setup_path)
+            setup = read(setup_path)
             self.setup_window = SetupWindow(setup_path, setup)
 
     def create_setup(self):
@@ -178,13 +178,13 @@ class GUIController:
         if setup_path == "":
             file_name = QFileDialog.getSaveFileName(None, "Save File", home_dir)
             if file_name[0]:
-                setup = read_setup('./resources/setups/setup_default.py')
+                setup = read('./resources/setups/setup_default.py')
                 self.setup_window = SetupWindow(file_name[0], setup)
                 self.config_window.setup_box.setText(file_name[0])
             else:
                 log.warning("No path specified")
         else:
-            setup = read_setup('./resources/setups/setup_default.py')
+            setup = read('./resources/setups/setup_default.py')
             self.setup_window = SetupWindow(setup_path, setup)
 
     def add_subscriber_for_main_window_event(self, obj_method):

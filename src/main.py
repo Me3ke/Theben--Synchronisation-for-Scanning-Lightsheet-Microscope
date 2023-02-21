@@ -9,12 +9,12 @@ os.chdir('../')
 # TODO adjust
 
 """
-
+    Main class, initializes the program
 """
 
 
 def main():
-    initializer = Initialize(sys.argv)
+    Initialize(sys.argv)
 
 
 if __name__ == "__main__":
