@@ -58,7 +58,8 @@ class GUIController:
     def start_config_window(self, setup_path, param_path):
         thread = threading.Thread(target=self.show_config_window, name='Config_Window', args=(setup_path, param_path))
         thread.start()
-        time.sleep(1)
+        # Wait till config window is initialized. If an error occurs starting the program increase this time
+        time.sleep(1.5)
 
         self.config_window.add_subscriber_for_finished_check_event(self.start_main_window)
         self.config_window.add_subscriber_for_modify_setup_event(self.modify_setup)
@@ -146,8 +147,11 @@ class GUIController:
         self.original_width = new_image.shape[1]
         self.original_array = new_image
         self.main_window.brightness_slider.setValue(0)
+        self.main_window.brightness_label.setText('Brightness: ' + "0")
         self.main_window.contrast_slider.setValue(1)
+        self.main_window.contrast_label.setText('Contrast: ' + "1")
         self.main_window.gamma_slider.setValue(1)
+        self.main_window.gamma_label.setText('Gamma: ' + "1")
         self.brightness = 0
         self.contrast = 1
         self.gamma = 1

@@ -12,6 +12,8 @@ log = logging.getLogger("log")
 """
 
 """
+# TODO compare with calib commander
+# TODO code inspection
 
 
 class RunningCommander:
@@ -101,7 +103,6 @@ class RunningCommander:
                 self.camera_controller.stop()
                 self.laser_controller.stop()
                 self.hardware_controller.stop()
-
 
     def cont_thread(self):
         thread = threading.Thread(target=self.cont, name='Restart')

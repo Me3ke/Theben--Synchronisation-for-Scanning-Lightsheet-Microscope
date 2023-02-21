@@ -6,6 +6,9 @@ inspired by https://stackoverflow.com/questions/384076/how-can-i-color-python-lo
 
 
 class CustomFormatter(logging.Formatter):
+    """
+    Create a custom format for log entries.
+    """
 
     grey = "<span style=\" font-size:8pt; font-weight:600; color:#808080;\" >"
     yellow = "<span style=\" font-size:8pt; font-weight:600; color:#888800;\" >"

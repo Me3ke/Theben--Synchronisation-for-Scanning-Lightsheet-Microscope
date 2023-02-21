@@ -41,7 +41,6 @@ class HardwareController:
         else:
             raise FailedCommunicationException("HC invalid, probably wrong .ino loaded")
 
-
     def set_commands(self, setup, param, mode):
         if setup.serial_hc_1_camera_trigger_curve_mode == "rising":
             cam_trigger_curve_mode = '1'

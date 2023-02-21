@@ -10,6 +10,9 @@ inspired by https://stackoverflow.com/questions/28655198/best-way-to-display-log
 
 # noinspection PyUnresolvedReferences
 class QTextEditLogger(logging.Handler, QObject):
+    """
+    Create an object that allows logs via logging to be displayed.
+    """
 
     append_text = pyqtSignal(str)
 
@@ -20,6 +23,7 @@ class QTextEditLogger(logging.Handler, QObject):
         self.widget.setStyleSheet("background-color: white")
         self.widget.setReadOnly(True)
         self.append_text.connect(self.widget.append)
+        # Always on lowest position
         self.widget.ensureCursorVisible()
 
     def emit(self, record):

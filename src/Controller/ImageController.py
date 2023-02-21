@@ -16,8 +16,7 @@ def find_max_pos(image):
     return idx[0], max_value
 
 
-def analyze_optics(image):
-    threshold = 100
+def analyze_optics(image, threshold):
     h, w = image.shape
     pos, val = find_max_pos(image)
     if pos >= (round(h / 2) + threshold) or pos <= (round(h / 2) - threshold):
@@ -25,12 +24,9 @@ def analyze_optics(image):
     return True
 
 
-def analyze_positional_defect(pic_pos, gal_pos, const, pic_height, threshold):
-    expected_pos = pic_height - (round(gal_pos * const))
+def analyze_positional_defect(pic_pos, gal_pos, const, max_pic_pos, threshold):
+    expected_pos = round((max_pic_pos - gal_pos) * const)
     if pic_pos <= expected_pos - threshold or pic_pos > expected_pos + threshold:
-        log.debug(gal_pos)
-        log.debug(pic_pos)
-        log.debug(expected_pos)
         return False
     else:
         return True

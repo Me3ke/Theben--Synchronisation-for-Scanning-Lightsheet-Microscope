@@ -16,16 +16,20 @@ BACKGROUND_COLOR = "#F4A999"
 log = logging.getLogger("log")
 home_dir = os.path.expanduser("~/Desktop")
 
-"""
-"""
-
 
 class MainWindow(QWidget):
+    """
+    Main Window of the application.
+    Features creating all widgets and creating Events
+    for their use.
+    """
 
+    # If not verified the program will not start
     verified = False
 
     log_textbox = None
     image_widget = None
+    # The actual image
     pixmap = None
 
     clear_button = None
@@ -42,6 +46,7 @@ class MainWindow(QWidget):
     contrast_label = None
     gamma_label = None
 
+    # Path that is transferred from the File Dialog
     save_image_path = ""
 
     def __init__(self):
@@ -50,8 +55,10 @@ class MainWindow(QWidget):
         self.setWindowIcon(QtGui.QIcon(ICON_NAME))
         self.setContentsMargins(10, 10, 10, 10)
         self.setStyleSheet(f"background-color: {BACKGROUND_COLOR};")
+        # The current picture from the camera
         self.image_widget = QLabel(self)
         self.init_layout()
+
         self.on_do_save = Event()
         self.on_do_continue = Event()
         self.on_do_start = Event()
@@ -59,10 +66,13 @@ class MainWindow(QWidget):
         self.on_brightness_changed = Event()
         self.on_contrast_changed = Event()
         self.on_gamma_changed = Event()
+
         self.show()
         self.activateWindow()
 
     def init_layout(self):
+        """Initializes the layout of the main window."""
+
         self.log_textbox = self.init_log_textbox()
         self.init_buttons()
         self.init_sliders()
@@ -101,6 +111,7 @@ class MainWindow(QWidget):
         self.setLayout(layout_outer)
 
     def init_log_textbox(self):
+        """Initializes the text box where logs are presented."""
         log_textbox = QTextEditLogger(self)
         log_textbox.setFormatter(CustomFormatter())
         log.addHandler(log_textbox)
@@ -108,10 +119,12 @@ class MainWindow(QWidget):
         return log_textbox
 
     def show_image(self, image):
+        """Shows the image in the image widget."""
         self.pixmap = image
         self.image_widget.setPixmap(self.pixmap)
 
     def init_buttons(self):
+        """Initializes clear, save, continue, start and stop buttons."""
         button_size = QtCore.QSize(DEFAULT_BUTTON_HEIGHT, DEFAULT_BUTTON_WIDTH)
         self.clear_button = QPushButton("Clear")
         self.clear_button.setStyleSheet("background-color: gray")
@@ -135,6 +148,7 @@ class MainWindow(QWidget):
         self.init_button_clicked()
 
     def init_sliders(self):
+        """Initializes brightness, contrast and gamma sliders."""
         self.brightness_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
         self.brightness_slider.setMaximum(10000)
         self.brightness_slider.setMinimum(0)
@@ -152,6 +166,7 @@ class MainWindow(QWidget):
         self.gamma_slider.sliderReleased.connect(self.change_gamma)
 
     def init_button_clicked(self):
+        """Connect button pushes to the corresponding methods."""
         self.clear_button.clicked.connect(self.clear_log)
         self.save_button.clicked.connect(self.save_image)
         self.continue_button.clicked.connect(self.do_continue)
@@ -159,6 +174,7 @@ class MainWindow(QWidget):
         self.stop_button.clicked.connect(self.do_stop)
 
     def save_image(self):
+        """Use OpenFileDialog to get an image path and call the save event."""
         file_name = QFileDialog.getSaveFileName(self, "Save File", home_dir)
         if file_name[0]:
             self.save_image_path = file_name[0]
@@ -188,49 +204,26 @@ class MainWindow(QWidget):
     def clear_log(self):
         self.log_textbox.widget.clear()
 
-    # TODO remove remove methods?
+    def get_pixmap(self):
+        return self.pixmap
 
     def add_subscriber_for_start_event(self, obj_method):
         self.on_do_start += obj_method
 
-    def remove_subscriber_for_start_event(self, obj_method):
-        self.on_do_start -= obj_method
-
     def add_subscriber_for_stop_event(self, obj_method):
         self.on_do_stop += obj_method
-
-    def remove_subscriber_for_stop_event(self, obj_method):
-        self.on_do_stop -= obj_method
 
     def add_subscriber_for_continue_event(self, obj_method):
         self.on_do_continue += obj_method
 
-    def remove_subscriber_for_continue_event(self, obj_method):
-        self.on_do_continue -= obj_method
-
     def add_subscriber_for_save_event(self, obj_method):
         self.on_do_save += obj_method
-
-    def remove_subscriber_for_save_event(self, obj_method):
-        self.on_do_save -= obj_method
 
     def add_subscriber_for_brightness_event(self, obj_method):
         self.on_brightness_changed += obj_method
 
-    def remove_subscriber_for_brightness_event(self, obj_method):
-        self.on_brightness_changed -= obj_method
-
     def add_subscriber_for_contrast_event(self, obj_method):
         self.on_contrast_changed += obj_method
 
-    def remove_subscriber_for_contrast_event(self, obj_method):
-        self.on_contrast_changed -= obj_method
-
     def add_subscriber_for_gamma_event(self, obj_method):
         self.on_gamma_changed += obj_method
-
-    def remove_subscriber_for_gamma_event(self, obj_method):
-        self.on_gamma_changed -= obj_method
-
-    def get_pixmap(self):
-        return self.pixmap
