@@ -1,5 +1,6 @@
 """
-
+    Event class. Creates a callable object that directs
+    an event to all handlers in its list
 """
 
 

@@ -29,8 +29,8 @@ class RunningCommander:
     def __init__(self, gui_controller, setup_path, param_path):
         self.gui_controller = gui_controller
         try:
-            self.setup = load_setup(setup_path)
-            self.param = load_param(param_path)
+            self.setup = load(setup_path, 'setup')
+            self.param = load(param_path, 'param')
         except Exception as e:
             log.error("Could not verify. Try modifying a setup or create a new one. Or parameter file corrupted.")
             log.error("The corresponding error arises from: ")
