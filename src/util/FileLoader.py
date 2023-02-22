@@ -3,13 +3,9 @@ import shutil
 import logging
 import importlib
 
-from Exceptions.FileImportException import FileImportException
+from src.Exceptions.FileImportException import FileImportException
 
 log = logging.getLogger("log")
-
-"""
-
-"""
 
 
 def load(path, specification):
@@ -18,13 +14,17 @@ def load(path, specification):
     :param path: The path of the setup/param file
     :param specification: 'setup' or 'param' indicating whether it is a setup or param
     :raise FileImportException: if file is corrupted
-    :return: The imported file.
+    :return: The imported file, or None if no path is specified
     """
+    if path == "":
+        return None
     name = os.path.basename(path)
     if specification == 'setup':
-        new_path = '.\\src\\resources\\setups\\' + name
+        new_path = '.\\resources\\setups\\' + name
     else:
-        new_path = '.\\src\\resources\\params\\' + name
+        new_path = '.\\resources\\params\\' + name
+    if os.path.isfile(new_path):
+        os.remove(new_path)
     try:
         # Load file into resources
         shutil.copy(path, new_path)
@@ -48,9 +48,26 @@ def load(path, specification):
 
 def read(path):
     """Return a String with the file content"""
-    file = open(path, 'r')
-    return file.read()
+    try:
+        with open(path, 'r') as file:
+            return file.read()
+    except PermissionError:
+        log.error("No permission to read file")
+    except Exception as ex:
+        log.error(ex)
 
 
-def save(path):
-    pass
+def save(path, text):
+    """Save a string in a file"""
+    try:
+        with open(path, 'w') as file:
+            file.write(text)
+    except PermissionError:
+        log.error("No permission to save in file")
+    except Exception as ex:
+        log.error(ex)
+
+
+
+
+

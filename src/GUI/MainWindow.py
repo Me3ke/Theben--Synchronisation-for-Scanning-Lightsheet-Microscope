@@ -155,13 +155,14 @@ class MainWindow(QWidget):
         self.brightness_slider.setTickInterval(100)
         self.brightness_slider.sliderReleased.connect(self.change_brightness)
 
+        # TODO contrast
         self.contrast_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
-        self.contrast_slider.setMaximum(10)
+        self.contrast_slider.setMaximum(3)
         self.contrast_slider.setMinimum(1)
         self.contrast_slider.sliderReleased.connect(self.change_contrast)
 
         self.gamma_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
-        self.gamma_slider.setMaximum(200)
+        self.gamma_slider.setMaximum(110)
         self.gamma_slider.setMinimum(100)
         self.gamma_slider.sliderReleased.connect(self.change_gamma)
 
@@ -210,11 +211,20 @@ class MainWindow(QWidget):
     def add_subscriber_for_start_event(self, obj_method):
         self.on_do_start += obj_method
 
+    def remove_subscriber_for_start_event(self, obj_method):
+        self.on_do_start -= obj_method
+
     def add_subscriber_for_stop_event(self, obj_method):
         self.on_do_stop += obj_method
 
+    def remove_subscriber_for_stop_event(self, obj_method):
+        self.on_do_stop -= obj_method
+
     def add_subscriber_for_continue_event(self, obj_method):
         self.on_do_continue += obj_method
+
+    def remove_subscriber_for_continue_event(self, obj_method):
+        self.on_do_continue -= obj_method
 
     def add_subscriber_for_save_event(self, obj_method):
         self.on_do_save += obj_method

@@ -5,10 +5,6 @@ from src.Exceptions.NoProperCalibrationException import NoProperCalibrationExcep
 
 log = logging.getLogger("log")
 
-"""
-
-"""
-
 
 def find_max_pos(image):
     max_value = np.amax(image)
@@ -21,6 +17,7 @@ def analyze_optics(image, threshold):
     pos, val = find_max_pos(image)
     if pos >= (round(h / 2) + threshold) or pos <= (round(h / 2) - threshold):
         raise NoProperCalibrationException("Positions are not accurate!")
+    # TODO check curve in picture
     return True
 
 

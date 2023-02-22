@@ -42,7 +42,6 @@ class CameraController:
                         raise CameraBlockedException("Camera was forced to stop")
                     return self.image
             except ValueError:
-                # TODO examine if this is right
                 log.error("camera is busy. Make sure the camera is not in use and restart the process")
                 return None
             except Exception as ex:

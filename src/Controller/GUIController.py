@@ -110,9 +110,6 @@ class GUIController:
             else:
                 log.error("File could not be opened, make sure the file is closed and files may be created")
 
-    # TODO add useful logs
-    # TODO block buttons
-    # TODO adjust contrast brightness etc values
     def change_brightness(self):
         self.brightness = self.main_window.brightness_slider.value()
         self.main_window.brightness_label.setText("Brightness: " + str(self.brightness))
@@ -148,9 +145,9 @@ class GUIController:
         self.original_array = new_image
         self.main_window.brightness_slider.setValue(0)
         self.main_window.brightness_label.setText('Brightness: ' + "0")
-        self.main_window.contrast_slider.setValue(1)
+        self.main_window.contrast_slider.setValue(10)
         self.main_window.contrast_label.setText('Contrast: ' + "1")
-        self.main_window.gamma_slider.setValue(1)
+        self.main_window.gamma_slider.setValue(100)
         self.main_window.gamma_label.setText('Gamma: ' + "1")
         self.brightness = 0
         self.contrast = 1
@@ -194,11 +191,21 @@ class GUIController:
         self.on_start_main_window -= obj_method
 
     def set_commander(self, commander):
+        if self.commander is None:
+            remove = False
+            old_commander = None
+        else:
+            remove = True
+            old_commander = self.commander
         self.commander = commander
         log.debug("Commander has been set")
         if self.main_window is None:
             raise InitializeException("Could not initialize main window")
         else:
+            if remove:
+                self.main_window.remove_subscriber_for_start_event(old_commander.start_thread)
+                self.main_window.remove_subscriber_for_stop_event(old_commander.stop)
+                self.main_window.remove_subscriber_for_continue_event(old_commander.cont_thread)
             self.main_window.add_subscriber_for_start_event(self.commander.start_thread)
             self.main_window.add_subscriber_for_stop_event(self.commander.stop)
             self.main_window.add_subscriber_for_continue_event(self.commander.cont_thread)

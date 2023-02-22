@@ -1,15 +1,11 @@
-"""
-
-"""
-
 import logging
 import threading
 import time
+import os
 import matplotlib.pyplot as plt
 
-from src.Controller.CameraController import CameraController
-from src.Controller.HardwareController import HardwareController
-from src.Controller.LaserController import LaserController
+from src.Commander.AbstractCommander import AbstractCommander
+from src.Commander.RunningCommander import RunningCommander
 from src.Controller.ImageController import *
 from src.Exceptions.CameraBlockedException import CameraBlockedException
 from src.Exceptions.FailedCommunicationException import FailedCommunicationException
@@ -29,30 +25,16 @@ REJECT_COMMAND = "9"
 PIC_POS_DISTANCE_THRESHOLD = 5
 MAX_PIC_POS_STEPS = 100
 MAX_PIC_POS_REPEATS = 3
-
-
 MAX_INTENSITY_VALUE = 30000
 MIN_INTENSITY_VALUE = 6000
-
 OPTICAL_MIDDLE_POS_MAX_DEVIATION = 40
 
 # Describes the maximum distance that the galvanometer position may have from their belonging picture position
 PIC_ROW_DISTANCE_THRESHOLD = 40
 
 
-# TODO ergebnisse in einer parameter datei hinterlegen
+class CalibrationCommander (AbstractCommander):
 
-
-class CalibrationCommander:
-
-    hardware_controller = None
-    camera_controller = None
-    laser_controller = None
-    setup = None
-    verified = False
-    stopped = False
-    started = False
-    calibrated = False
     px_list = []
     v_list = []
     mode = '3'
@@ -61,120 +43,58 @@ class CalibrationCommander:
     t_final = 0
     t_trig = 0
 
-    def __init__(self, gui_controller, setup_path, param_path):
-        self.gui_controller = gui_controller
-        try:
-            self.setup = load(setup_path, 'setup')
-        except Exception as e:
-            log.error("Could not verify. Try modifying a setup or create a new one")
-            log.error("The corresponding error arises from: ")
-            log.critical(str(e))
-
-    def run(self):
-        if self.initialize_controllers():
-            self.verified = True
-            self.gui_controller.set_verified()
-            log.info("Finished. Data has been verified")
-
-    def initialize_controllers(self):
-        try:
-            self.camera_controller = CameraController(self.setup)
-            self.hardware_controller = HardwareController(self.setup, None)
-            self.hardware_controller.init_hc()
-            self.hardware_controller.set_commands(self.setup, None, self.mode)
-            self.hardware_controller.transmit_commands()
-            self.laser_controller = LaserController(self.setup)
-            self.laser_controller.set_commands_run()
-            return True
-        except Exception as e:
-            log.error("Failed to initialize connections.")
-            log.error("The corresponding error arises from: ")
-            log.critical(str(e))
-            self.verified = False
-            self.stopped = True
-            return False
-
-    def start_thread(self):
-        thread = threading.Thread(target=self.start, name='Start')
-        thread.start()
-
     def start(self):
         log.info("Starting...")
         if not self.started:
-            if self.stopped:
+            if self.stopped or not self.verified:
                 log.warning("After stopping the Application, you need to continue first, before restarting.")
             else:
                 self.started = True
-                if self.calibrated:
-                    # TODO Do the running here
-                    pass
-                else:
-                    self.laser_controller.arm_laser()
-                    self.hardware_controller.start()
-
-                    try:
-                        log.info("Starting intensity test")
-                        intensity = self.intensity_test()
-                        log.debug(intensity)
-                        log.info("Evaluate maximum image position. (Might take a moment)")
-                        self.max_pic_pos = self.get_pic_pos(0, PIC_POS_DISTANCE_THRESHOLD, intensity)
-                        log.debug(self.max_pic_pos)
-                        time.sleep(0.5)
-                        log.info("Evaluate minimum image position (Might take a moment)")
-                        self.min_pic_pos = self.get_pic_pos(self.setup.serial_hc_1_picHeight,
-                                                            -PIC_POS_DISTANCE_THRESHOLD, intensity)
-                        log.debug(self.min_pic_pos)
-                        time.sleep(0.5)
-                        log.info("Starting optical test")
-                        mid_pos = round((self.max_pic_pos + self.min_pic_pos) / 2)
-                        mid_pic_pos = self.optical_test(mid_pos)
-                        log.info("No optical defects detected")
-                        time.sleep(0.5)
-                        log.info("Starting picture row test")
-                        self.picture_row_test(mid_pic_pos)
-                        log.info("No discrepancy found")
-                        time.sleep(0.5)
-                        # TODO show graph maybe?
-                        log.info("Starting time calibration")
-                        self.t_final = self.time_calibration()
-                        time.sleep(0.5)
-                        self.secure_check()
-
-                        log.info("Found sufficient calibration")
-                        # TODO:
-                        # self.save_param() -> save in path or where setup lies
-                        #log.info(saved in parameter file)
-                        self.started = False
-                        self.calibrated = True
-                        self.laser_controller.turn_off()
-                    except Exception as ex:
-                        log.critical("Calibration failed!")
-                        self.stop()
-                        log.error(ex)
+                self.laser_controller.arm_laser()
+                self.hardware_controller.start()
+                try:
+                    log.info("Starting intensity test")
+                    intensity = self.intensity_test()
+                    log.debug(intensity)
+                    log.info("Evaluate maximum image position. (Might take a moment)")
+                    self.max_pic_pos = self.get_pic_pos(0, PIC_POS_DISTANCE_THRESHOLD, intensity)
+                    log.debug(self.max_pic_pos)
+                    time.sleep(0.5)
+                    log.info("Evaluate minimum image position (Might take a moment)")
+                    self.min_pic_pos = self.get_pic_pos(self.setup.serial_hc_1_picHeight,
+                                                        -PIC_POS_DISTANCE_THRESHOLD, intensity)
+                    log.debug(self.min_pic_pos)
+                    time.sleep(0.5)
+                    log.info("Starting optical test")
+                    mid_pos = round((self.max_pic_pos + self.min_pic_pos) / 2)
+                    mid_pic_pos = self.optical_test(mid_pos)
+                    log.info("No optical defects detected")
+                    time.sleep(0.5)
+                    log.info("Starting picture row test")
+                    self.picture_row_test(mid_pic_pos)
+                    log.info("No discrepancy found")
+                    time.sleep(0.5)
+                    # TODO show graph maybe?
+                    log.info("Starting time calibration. (Might take a moment)")
+                    self.t_final = self.time_calibration()
+                    time.sleep(0.5)
+                    self.secure_check()
+                    log.info("Found sufficient calibration")
+                    self.save_param()
+                    log.info("Saved parameter in file " + self.param_path)
+                except Exception as ex:
+                    log.critical("Calibration failed!")
+                    self.stop()
+                    log.error(ex)
+                    return
+                finally:
+                    self.started = False
+                    self.laser_controller.turn_off()
+                self.stop()
+                log.info("Changing into running mode")
+                self.change_running()
         else:
             log.warning("Already started")
-
-    def stop(self):
-        if not self.stopped:
-            if self.verified:
-                log.info("Stopping...")
-                self.stopped = True
-                self.started = False
-                self.verified = False
-                self.camera_controller.stop()
-                self.laser_controller.stop()
-                self.hardware_controller.stop()
-
-    def cont_thread(self):
-        thread = threading.Thread(target=self.cont, name='Restart')
-        thread.start()
-
-    def cont(self):
-        if self.stopped and not self.started and not self.verified:
-            log.info("Continue...")
-            self.verified = False
-            self.run()
-            self.stopped = False
 
     def intensity_test(self):
         thread = threading.Thread(target=self.hardware_controller.send_and_receive, args=(TRIGGER_COMMAND,))
@@ -289,7 +209,7 @@ class CalibrationCommander:
                     log.debug(result)
 
                     if result == '-200\r\n':
-                        raise NoProperCalibrationException("There is no calibration found with given parameters")
+                        raise NoProperCalibrationException("No calibration found with given parameters")
                     elif result == '1\r\n':
                         return t_final
                     else:
@@ -310,6 +230,27 @@ class CalibrationCommander:
                 self.t_trig = answer2
             else:
                 raise NoProperCalibrationException("There is no calibration with given parameters")
+
+    def save_param(self):
+        if self.param_path == "":
+            parent = os.path.abspath(os.path.join(self.setup_path, os.pardir))
+            name = "created_param.py"
+            self.param_path = parent + '\\' + name
+        text = "related_setup = " + "\"" + self.setup_path + "\"" + '\r' \
+               "serial_hc_1_maxPicPos = " + "\"" + str(self.max_pic_pos) + "\"" + '\r' \
+               "serial_hc_1_minPicPos = " + "\"" + str(self.min_pic_pos) + "\"" + '\r' \
+               "tTrig = " + str(self.t_final) + '\r' \
+               "tFinal = " + str(self.t_trig)
+        save(self.param_path, text)
+
+    def change_running(self):
+        try:
+            new_commander = RunningCommander(self.gui_controller, self.init, self.setup_path, self.param_path)
+        except FileImportException:
+            return
+        self.gui_controller.set_commander(new_commander)
+        self.init.set_new_commander(new_commander)
+        new_commander.run()
 
 
 

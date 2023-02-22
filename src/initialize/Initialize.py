@@ -46,10 +46,13 @@ class Initialize:
         self.mode = self.gui_controller.mode
         self.setup_path = self.gui_controller.setup_path
         self.param_path = self.gui_controller.param_path
-        if self.mode == "running":
-            self.commander = RunningCommander(self.gui_controller, self.setup_path, self.param_path)
-        else:
-            self.commander = CalibrationCommander(self.gui_controller, self.setup_path, self.param_path)
+        try:
+            if self.mode == "running":
+                self.commander = RunningCommander(self.gui_controller, self, self.setup_path, self.param_path)
+            else:
+                self.commander = CalibrationCommander(self.gui_controller, self, self.setup_path, self.param_path)
+        except FileImportException:
+            return
         try:
             self.gui_controller.set_commander(self.commander)
             self.commander.run()
@@ -60,11 +63,16 @@ class Initialize:
             exit(100)
 
     def stop(self):
-        """ Call before terminating to make sure all resources are reset """
+        """Call before terminating to make sure all resources are reset"""
         if self.commander is None:
             log.warning("Terminating program")
             exit()
         else:
             # Direct stop command to commander
             self.commander.stop()
+
+    def set_new_commander(self, commander):
+        """Sets a new commander"""
+        self.commander = commander
+
 

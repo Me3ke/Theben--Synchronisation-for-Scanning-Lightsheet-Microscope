@@ -26,12 +26,7 @@ class LaserController:
         self.laser_power = setup.serial_laser_power
         self.laser_channel = setup.serial_laser_channel
 
-    def set_commands_calib(self):
-        # TODO change this
-        self.command_list = ["ch " + str(self.laser_channel) + " pow " + str(self.laser_power) + "\r",
-                             "en " + str(self.laser_channel) + "\r", "en ext\r", "la on\r"]
-
-    def set_commands_run(self):
+    def set_commands(self):
         self.command_list = ["ch " + str(self.laser_channel) + " pow " + str(self.laser_power) + "\r",
                              "en " + str(self.laser_channel) + "\r", "la on\r"]
 

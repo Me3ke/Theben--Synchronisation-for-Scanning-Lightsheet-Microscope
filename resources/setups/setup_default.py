@@ -7,7 +7,7 @@ serial_hc_1_maxSteps = "30"
 serial_hc_1_highPos = "4000"
 serial_hc_1_lowPos = "0100"
 serial_hc_1_picHeight = "2048"
-serial_hc_1_calibThreshold = "1500"
+serial_hc_1_calibThreshold = "3000"
 serial_camera_exposure_time = 200
 serial_camera_line_time = 200
 serial_camera_exposure_lines = 50
@@ -27,7 +27,6 @@ serial_laser_parity = serial.PARITY_NONE
 serial_laser_stopbits = serial.STOPBITS_ONE
 serial_laser_bytesize = serial.EIGHTBITS
 
-serial_hc_1_midPos = "1950"
 # TODO maybe remove and add nullPos to param, if it is possible to read where voltage is zero
 # TODO replace with voltage range highPos, lowPos
 

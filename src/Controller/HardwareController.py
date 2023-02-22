@@ -53,7 +53,7 @@ class HardwareController:
         max_steps_length = len(setup.serial_hc_1_maxSteps)
 
         self.command_list = [str(self.state), mode, setup.serial_hc_1_camera_trigger_pin, cam_trigger_curve_mode,
-                             setup.serial_hc_1_midPos, setup.serial_hc_1_highPos, setup.serial_hc_1_lowPos,
+                             setup.serial_hc_1_highPos, setup.serial_hc_1_lowPos,
                              str(line_time_length), str(setup.serial_camera_line_time),
                              str(exp_lines_length), str(setup.serial_camera_exposure_lines),
                              str(pic_height_length), setup.serial_hc_1_picHeight,

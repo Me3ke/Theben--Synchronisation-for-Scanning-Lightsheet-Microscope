@@ -3,10 +3,7 @@ import os
 
 from initialize.Initialize import Initialize
 
-#print(os.getcwd())
 os.chdir('../')
-#print(os.getcwd())
-# TODO adjust
 
 """
     Main class, initializes the program
