@@ -1,6 +1,8 @@
 import time
 import logging
 
+from PyQt6.QtWidgets import QApplication
+
 from src.Controller.GUIController import GUIController
 from src.Commander.CalibrationCommander import CalibrationCommander
 from src.Commander.RunningCommander import RunningCommander

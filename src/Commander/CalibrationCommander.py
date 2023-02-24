@@ -17,17 +17,40 @@ from src.Exceptions.TimeoutException import TimeoutException
 
 log = logging.getLogger("log")
 
+# Commands for hardware controller communication
 TRIGGER_COMMAND = "6"
 FINISH_COMMAND = "7"
 CONFIRM_COMMAND = "8"
 REJECT_COMMAND = "9"
 
+
+# Describes the maximum deviation the max/min picture positions may have in the picture
+# (e.g. 5 -> maximum picture position may be between pixel 0 and 5; Minimum between pic_height and pic_height - 5)
 PIC_POS_DISTANCE_THRESHOLD = 5
+
+# Describes the number of steps in one process to find max/min positions
 MAX_PIC_POS_STEPS = 100
+
+# Describes the number of repeats to find max/min picture positions
 MAX_PIC_POS_REPEATS = 3
-MAX_INTENSITY_VALUE = 30000
-MIN_INTENSITY_VALUE = 6000
+
+# Describes the laser maximum intensity value
+LASER_MAX_INTENSITY_VALUE = 30000
+
+# Describes the laser minimum intensity value
+LASER_MIN_INTENSITY_VALUE = 6000
+
+# Describes the laser intensity decrement if max/min position was not found
+LASER_INC = 2000
+
+# Describes the maximum distance that the middle line is off from the expected middle line
 OPTICAL_MIDDLE_POS_MAX_DEVIATION = 40
+
+# Describes in how many columns the picture is split before analyzing if the line is straight in the picture
+OPTICAL_COLUMN_SPLIT = 100
+
+# Describes the maximum distance that the max in one column may deviate from another
+OPTICAL_HORIZONTAL_MAX_DEVIATION = 10
 
 # Describes the maximum distance that the galvanometer position may have from their belonging picture position
 PIC_ROW_DISTANCE_THRESHOLD = 40
@@ -107,9 +130,9 @@ class CalibrationCommander (AbstractCommander):
             raise CameraBlockedException("Camera could not make an image, make sure the parameters are valid.")
         else:
             pos, val = find_max_pos(image)
-            if val >= MAX_INTENSITY_VALUE:
+            if val >= LASER_MAX_INTENSITY_VALUE:
                 raise OpticalDefectException("Laser intensity too high")
-            elif val <= MIN_INTENSITY_VALUE:
+            elif val <= LASER_MIN_INTENSITY_VALUE:
                 raise OpticalDefectException("Laser intensity too low")
             return val
 
@@ -144,7 +167,7 @@ class CalibrationCommander (AbstractCommander):
             else:
                 self.hardware_controller.send_and_receive(REJECT_COMMAND)
                 counter += 1
-                inc += 2000
+                inc += LASER_INC
         raise Exception("Can't find picture starting or end position. Try adjusting the laser threshold or intensity")
 
     def optical_test(self, mid_pos):
@@ -155,7 +178,8 @@ class CalibrationCommander (AbstractCommander):
 
         image = self.camera_controller.take_picture(True)
         self.gui_controller.update_image(image)
-        if analyze_optics(image, OPTICAL_MIDDLE_POS_MAX_DEVIATION):
+        if analyze_optics(image, OPTICAL_MIDDLE_POS_MAX_DEVIATION, OPTICAL_HORIZONTAL_MAX_DEVIATION,
+                          OPTICAL_COLUMN_SPLIT):
             self.hardware_controller.send_and_receive(CONFIRM_COMMAND)
             pos, val = find_max_pos(image)
             return pos

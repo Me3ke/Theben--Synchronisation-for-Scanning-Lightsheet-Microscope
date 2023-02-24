@@ -58,7 +58,7 @@ class GUIController:
     def start_config_window(self, setup_path, param_path):
         thread = threading.Thread(target=self.show_config_window, name='Config_Window', args=(setup_path, param_path))
         thread.start()
-        # Wait till config window is initialized. If an error occurs starting the program increase this time
+        # Wait till config window is initialized. If an error occurs start the program with increased time
         time.sleep(1.5)
 
         self.config_window.add_subscriber_for_finished_check_event(self.start_main_window)
@@ -89,10 +89,10 @@ class GUIController:
         self.main_window.add_subscriber_for_gamma_event(self.change_gamma)
 
     def show_config_window(self, setup_path, param_path):
-        app = QApplication(sys.argv)
-        app.aboutToQuit.connect(self.initializer.stop)
+        self.app = QApplication(sys.argv)
+        self.app.aboutToQuit.connect(self.initializer.stop)
         self.config_window = ConfigWindow(setup_path, param_path)
-        sys.exit(app.exec())
+        sys.exit(self.app.exec())
 
     def save(self):
         result_array = np.zeros((DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH))

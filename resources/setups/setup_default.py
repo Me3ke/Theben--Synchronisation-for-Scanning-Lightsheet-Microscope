@@ -22,11 +22,11 @@ serial_hc_1_baudrate = 9600
 serial_hc_1_parity = serial.PARITY_NONE
 serial_hc_1_stopbits = serial.STOPBITS_ONE
 serial_hc_1_bytesize = serial.EIGHTBITS
+
 serial_laser_baudrate = 115200
 serial_laser_parity = serial.PARITY_NONE
 serial_laser_stopbits = serial.STOPBITS_ONE
 serial_laser_bytesize = serial.EIGHTBITS
 
-# TODO maybe remove and add nullPos to param, if it is possible to read where voltage is zero
-# TODO replace with voltage range highPos, lowPos
-
+# WARNING: Do not change the order in the setup!
+# Changing values here might result crashing program!
