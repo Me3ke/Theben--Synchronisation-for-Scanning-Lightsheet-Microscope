@@ -3,14 +3,16 @@ import os
 
 from initialize.Initialize import Initialize
 
-# Set path to project root
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-os.chdir(ROOT_DIR)
-os.chdir('../')
 
 """
     Main class, initializes the program
 """
+
+
+# Set path to project root
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(ROOT_DIR)
+os.chdir('../')
 
 
 def main():

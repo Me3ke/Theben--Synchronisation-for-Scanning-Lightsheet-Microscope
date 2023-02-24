@@ -13,9 +13,7 @@ DEFAULT_BOX_WIDTH = 300
 
 log = logging.getLogger("log")
 home_dir = os.path.expanduser("~/Desktop")
-
-"""
-"""
+file_filter = "Python (*.py *.ipynb)"
 
 
 class ConfigWindow(QDialog):
@@ -127,7 +125,7 @@ class ConfigWindow(QDialog):
         self.param_box.setObjectName('param')
 
     def browse(self, target):
-        file_name = QFileDialog.getOpenFileName(self, "Open File", home_dir)
+        file_name = QFileDialog.getOpenFileName(self, "Open File", home_dir, file_filter, file_filter)
         if file_name[0]:
             target.setText(file_name[0])
 

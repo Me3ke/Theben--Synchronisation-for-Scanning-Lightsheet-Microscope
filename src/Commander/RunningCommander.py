@@ -7,6 +7,8 @@ from src.util.FileLoader import *
 
 log = logging.getLogger("log")
 
+START_COMMAND = "2"
+
 
 class RunningCommander(AbstractCommander):
 
@@ -31,7 +33,7 @@ class RunningCommander(AbstractCommander):
                 self.laser_controller.arm_laser()
                 # Start a thread because camera blocks and waits for trigger, so getting the hardware controller
                 # to trigger and starting the camera has to be simultaneous.
-                thread = threading.Thread(target=self.hardware_controller.start)
+                thread = threading.Thread(target=self.hardware_controller.start, args=(START_COMMAND,))
                 thread.start()
                 image = self.camera_controller.take_picture(False)
                 if image is None:

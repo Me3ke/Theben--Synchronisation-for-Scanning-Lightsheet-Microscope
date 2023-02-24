@@ -6,9 +6,6 @@ from src.Exceptions.FailedCommunicationException import FailedCommunicationExcep
 
 log = logging.getLogger("log")
 
-"""
-"""
-
 
 class LaserController:
 
@@ -27,10 +24,12 @@ class LaserController:
         self.laser_channel = setup.serial_laser_channel
 
     def set_commands(self):
+        """Initializes the command list with the corresponding commands to start the laser emission"""
         self.command_list = ["ch " + str(self.laser_channel) + " pow " + str(self.laser_power) + "\r",
                              "en " + str(self.laser_channel) + "\r", "la on\r"]
 
     def stop(self):
+        """Stops the emission of the laser and closes the serial connection"""
         log.debug("stopping laser")
         try:
             self.send_command("la off\r")
@@ -40,6 +39,7 @@ class LaserController:
             self.serial_connection.close()
 
     def turn_off(self):
+        """Only turns off the laser without killing the connection"""
         log.debug("turn off laser")
         try:
             self.send_command("la off\r")
@@ -47,6 +47,7 @@ class LaserController:
             log.error(ex)
 
     def arm_laser(self):
+        """Transmits the commands from the list to the laser to start emission"""
         log.debug("starting laser")
         try:
             for command in self.command_list:
@@ -55,6 +56,7 @@ class LaserController:
             log.error(ex)
 
     def send_command(self, command):
+        """Encodes a command and sends it to the laser via serial connection"""
         command_encoded = command.encode()
         if self.serial_connection.isOpen():
             self.serial_connection.write(command_encoded)

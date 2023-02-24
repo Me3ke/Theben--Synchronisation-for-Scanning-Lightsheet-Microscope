@@ -18,6 +18,7 @@ from src.Exceptions.TimeoutException import TimeoutException
 log = logging.getLogger("log")
 
 # Commands for hardware controller communication
+START_COMMAND = "2"
 TRIGGER_COMMAND = "6"
 FINISH_COMMAND = "7"
 CONFIRM_COMMAND = "8"
@@ -74,7 +75,7 @@ class CalibrationCommander (AbstractCommander):
             else:
                 self.started = True
                 self.laser_controller.arm_laser()
-                self.hardware_controller.start()
+                self.hardware_controller.send_and_receive(START_COMMAND)
                 try:
                     log.info("Starting intensity test")
                     intensity = self.intensity_test()
