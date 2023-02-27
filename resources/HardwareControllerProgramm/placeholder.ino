@@ -88,7 +88,7 @@ void loop() {
 	if (state == 0) {
     // checks for the right program on both sides
 		if (Serial.available() > 0) {
-		  byte number = getInputNumber();
+		  number = getInputNumber();
 		  if (number == 0) { // 0 is verification command from computer
 			  Serial.println("Theben"); // writes name of the right program onto serial port
 			  state = 1;
@@ -437,7 +437,7 @@ bool timeCalibration() {
     return false;
 	}
 
-	long int tAll = (picHeight + expLines) * lineTime + (2 * tTrig) + tJitter;	// overall time needed
+	long int tAll = (picHeight + expLines) * lineTime - tJitter;	// overall time needed
 	long int tSend = tSingleSend * ROI;	// time needed if tFinal was 0. Overall time (tAll) cannot be smaller than tSend
 	if (tAll < tSend) {
 		Serial.println("200");	//Errorcode 200 -> Illegal camera setup

@@ -1,8 +1,3 @@
-"""
-
-"""
-
-
 class IllegalCameraSetupException(Exception):
 
     def __init__(self, message):

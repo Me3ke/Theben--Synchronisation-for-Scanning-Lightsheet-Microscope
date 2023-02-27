@@ -38,7 +38,7 @@ VAR_NAMES = ["serial_hc_1_port",
              "serial_laser_channel",
              "serial_hc_1_baudrate",
              "serial_hc_1_parity",
-             "serial_hc_1_stopbit",
+             "serial_hc_1_stopbits",
              "serial_hc_1_bytesize",
              "serial_laser_baudrate",
              "serial_laser_parity",
@@ -164,7 +164,6 @@ class SetupWindow(QWidget):
         laser_channel_box.addItems(["1", "2"])
 
         self.box_list = text_box_list + combo_box_list
-        # TODO improve order
 
     def init_labels(self):
         hc_1_port_label = QLabel(self)

@@ -21,7 +21,7 @@ file_filter = "Python (*.py *.ipynb)"
 
 FIRST_IMAGE_NAME = './resources/default.tif'
 DEFAULT_IMAGE_WIDTH = 1024
-DEFAULT_IMAGE_HEIGHT = 512
+DEFAULT_IMAGE_HEIGHT = 1024
 DEFAULT_IMAGE_MAX_PIXEL_VALUE = 65535
 DEFAULT_IMAGE_TYPE = QImage.Format.Format_Grayscale16
 DEFAULT_IMAGE_INT_TYPE = np.uint16

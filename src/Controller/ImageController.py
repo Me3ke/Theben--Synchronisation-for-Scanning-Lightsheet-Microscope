@@ -46,7 +46,7 @@ def analyze_optics(image, threshold_middle, threshold_horizontal, split_columns)
 
     split_arr = np.hsplit(image, index_list)
     # First position is saved ...
-    check_position, val = find_max_pos(split_arr)
+    check_position, val = find_max_pos(split_arr[0])
     for arr in split_arr:
         pos, val = find_max_pos(arr)
         # and compared to every other column

@@ -33,8 +33,9 @@ class RunningCommander(AbstractCommander):
                 self.laser_controller.arm_laser()
                 # Start a thread because camera blocks and waits for trigger, so getting the hardware controller
                 # to trigger and starting the camera has to be simultaneous.
-                thread = threading.Thread(target=self.hardware_controller.start, args=(START_COMMAND,))
+                thread = threading.Thread(target=self.hardware_controller.send_and_receive, args=(START_COMMAND,))
                 thread.start()
+
                 image = self.camera_controller.take_picture(False)
                 if image is None:
                     log.error("Camera could not make an image.")

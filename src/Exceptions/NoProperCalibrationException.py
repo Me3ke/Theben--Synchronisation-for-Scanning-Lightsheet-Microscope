@@ -1,8 +1,3 @@
-"""
-
-"""
-
-
 class NoProperCalibrationException(Exception):
 
     def __init__(self, message):

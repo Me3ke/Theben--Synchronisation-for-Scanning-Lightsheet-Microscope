@@ -34,6 +34,7 @@ class HardwareController:
         try:
             self.send_command(str(self.state))
             answer = self.get_single_command()
+            log.debug(answer)
         except Exception:
             raise FailedCommunicationException("HC invalid, probably wrong .ino loaded")
         # Program name (Theben) is default answer in basic state (0)
@@ -108,15 +109,16 @@ class HardwareController:
             for command in self.command_list:
                 self.send_command(command)
             answer = self.get_single_command()
+            log.debug(answer)
             # Handshake after every sent command
             if answer != 'received\r\n':
                 raise TimeoutException("No answer from hardware controller")
             else:
                 self.state = 2
         except Exception as ex:
-            log.error(ex)
             # Reset state
             self.state = 0
+            raise ex
 
     def send_and_receive(self, command):
         """Sends the command and receives an answer"""

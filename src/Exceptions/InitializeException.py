@@ -1,8 +1,3 @@
-"""
-
-"""
-
-
 class InitializeException(Exception):
 
     def __init__(self, message):
