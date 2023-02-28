@@ -3,6 +3,7 @@ import logging
 import cv2
 import numpy as np
 import sys
+import imageio
 import threading
 
 from PyQt6.QtCore import QFile, QIODeviceBase
@@ -114,19 +115,16 @@ class GUIController:
         result_array = np.zeros((DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH))
         normalized_array = cv2.normalize(self.original_array, result_array, 0,
                                          DEFAULT_IMAGE_MAX_PIXEL_VALUE, cv2.NORM_MINMAX)
-        pixmap = self.update_image_values(normalized_array)
         # Path will be saved in the main window after the dialog
         path_to_file = self.main_window.save_image_path
         if path_to_file == "":
             log.error("No path specified")
-        else:
-            # Use QFile to save pixmap in given path
-            file = QFile(path_to_file)
-            if file.open(QIODeviceBase.OpenModeFlag.WriteOnly):
-                pixmap.save(file)
-                log.info("File saved")
-            else:
-                log.error("File could not be opened, make sure the file is closed and files may be created")
+            return
+        try:
+            imageio.imwrite(path_to_file, normalized_array)
+        except Exception as ex:
+            log.error("File could not be opened, make sure the file is closed and files may be created")
+            log.error(ex)
 
     def change_brightness(self):
         """On brightness slider released event, the brightness of the current image will be adjusted"""
