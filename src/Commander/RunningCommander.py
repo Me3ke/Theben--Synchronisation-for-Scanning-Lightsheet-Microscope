@@ -2,8 +2,8 @@ import logging
 import threading
 import time
 
-from src.Commander.AbstractCommander import AbstractCommander
-from src.util.FileLoader import *
+from Commander.AbstractCommander import AbstractCommander
+from util.FileLoader import *
 
 log = logging.getLogger("log")
 

@@ -2,8 +2,8 @@ import logging
 
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
-from src.GUI.ConnectionConfigWindow import ConnectionConfigWindow
-from src.util.FileLoader import *
+from GUI.ConnectionConfigWindow import ConnectionConfigWindow
+from util.FileLoader import *
 
 
 log = logging.getLogger("log")
@@ -342,7 +342,7 @@ class SetupWindow(QWidget):
         self.close()
 
     def show_hc_boxes(self):
-        title_text = "Theben: Hardware controller connection window"
+        title_text = "Theben: Hardware Controller Connection Window"
         caption_text = "Configure connection for hardware controller: "
         sub_caption_text = "Warning: Connection will not be adjusted in the hardware controller " \
                            "settings. Changing these values can result in a broken connection!"
@@ -350,7 +350,7 @@ class SetupWindow(QWidget):
                                                 caption_text, sub_caption_text, self)
 
     def show_laser_boxes(self):
-        title_text = "Theben: Laser connection window"
+        title_text = "Theben: Laser Connection Window"
         caption_text = "Configure connection for laser: "
         sub_caption_text = "Warning: Connection will not be adjusted in the laser " \
                            "settings. Changing these values can result in a broken connection!"

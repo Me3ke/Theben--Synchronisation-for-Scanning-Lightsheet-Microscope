@@ -1,9 +1,9 @@
 import threading
 
-from src.Controller.CameraController import CameraController
-from src.Controller.HardwareController import HardwareController
-from src.Controller.LaserController import LaserController
-from src.util.FileLoader import *
+from Controller.CameraController import CameraController
+from Controller.HardwareController import HardwareController
+from Controller.LaserController import LaserController
+from util.FileLoader import *
 
 
 class AbstractCommander:

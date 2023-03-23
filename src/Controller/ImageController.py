@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 
-from src.Exceptions.NoProperCalibrationException import NoProperCalibrationException
+from Exceptions.NoProperCalibrationException import NoProperCalibrationException
 
 log = logging.getLogger("log")
 

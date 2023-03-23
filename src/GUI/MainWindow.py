@@ -1,9 +1,9 @@
 import logging
 import os
 
-from src.util.Event import Event
-from src.GUI.LogTextEdit import QTextEditLogger
-from src.GUI.LogFormatter import CustomFormatter
+from util.Event import Event
+from GUI.LogTextEdit import QTextEditLogger
+from GUI.LogFormatter import CustomFormatter
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
 

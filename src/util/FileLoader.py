@@ -3,7 +3,7 @@ import shutil
 import logging
 import importlib
 
-from src.Exceptions.FileImportException import FileImportException
+from Exceptions.FileImportException import FileImportException
 
 log = logging.getLogger("log")
 
@@ -66,8 +66,4 @@ def save(path, text):
         log.error("No permission to save in file")
     except Exception as ex:
         log.error(ex)
-
-
-
-
 

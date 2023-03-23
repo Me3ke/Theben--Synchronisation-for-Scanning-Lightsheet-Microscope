@@ -1,11 +1,11 @@
 import time
 import logging
 
-from src.Controller.GUIController import GUIController
-from src.Commander.CalibrationCommander import CalibrationCommander
-from src.Commander.RunningCommander import RunningCommander
-from src.util.FileLoader import *
-from src.Exceptions.InitializeException import InitializeException
+from Controller.GUIController import GUIController
+from Commander.CalibrationCommander import CalibrationCommander
+from Commander.RunningCommander import RunningCommander
+from util.FileLoader import *
+from Exceptions.InitializeException import InitializeException
 
 log = logging.getLogger("log")
 

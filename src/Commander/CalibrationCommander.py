@@ -2,16 +2,16 @@ import logging
 import threading
 import time
 
-from src.Commander.AbstractCommander import AbstractCommander
-from src.Commander.RunningCommander import RunningCommander
-from src.Controller.ImageController import *
-from src.Exceptions.CameraBlockedException import CameraBlockedException
-from src.Exceptions.FailedCommunicationException import FailedCommunicationException
-from src.Exceptions.IllegalCameraSetupException import IllegalCameraSetupException
-from src.Exceptions.NoProperCalibrationException import NoProperCalibrationException
-from src.Exceptions.OpticalDefectException import OpticalDefectException
-from src.util.FileLoader import *
-from src.Exceptions.TimeoutException import TimeoutException
+from Commander.AbstractCommander import AbstractCommander
+from Commander.RunningCommander import RunningCommander
+from Controller.ImageController import *
+from Exceptions.CameraBlockedException import CameraBlockedException
+from Exceptions.FailedCommunicationException import FailedCommunicationException
+from Exceptions.IllegalCameraSetupException import IllegalCameraSetupException
+from Exceptions.NoProperCalibrationException import NoProperCalibrationException
+from Exceptions.OpticalDefectException import OpticalDefectException
+from util.FileLoader import *
+from Exceptions.TimeoutException import TimeoutException
 
 log = logging.getLogger("log")
 

@@ -2,8 +2,8 @@ import serial
 import time
 import logging
 
-from src.Exceptions.FailedCommunicationException import FailedCommunicationException
-from src.Exceptions.TimeoutException import TimeoutException
+from Exceptions.FailedCommunicationException import FailedCommunicationException
+from Exceptions.TimeoutException import TimeoutException
 
 log = logging.getLogger("log")
 

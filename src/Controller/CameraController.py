@@ -1,7 +1,7 @@
 import pco
 import logging
 
-from src.Exceptions.CameraBlockedException import CameraBlockedException
+from Exceptions.CameraBlockedException import CameraBlockedException
 
 log = logging.getLogger("log")
 

@@ -3,16 +3,17 @@ import logging
 import cv2
 import numpy as np
 import sys
+import os
 import threading
 
 from PyQt6.QtWidgets import QApplication, QFileDialog
 from PyQt6.QtGui import QImage, QPixmap
-from src.GUI.MainWindow import MainWindow
-from src.GUI.ConfigWindow import ConfigWindow
-from src.GUI.SetupWindow import SetupWindow
-from src.util.Event import Event
-from src.util.FileLoader import *
-from src.Exceptions.InitializeException import InitializeException
+from GUI.MainWindow import MainWindow
+from GUI.ConfigWindow import ConfigWindow
+from GUI.SetupWindow import SetupWindow
+from util.Event import Event
+from util.FileLoader import *
+from Exceptions.InitializeException import InitializeException
 
 log = logging.getLogger("log")
 home_dir = os.path.expanduser("~/Desktop")
