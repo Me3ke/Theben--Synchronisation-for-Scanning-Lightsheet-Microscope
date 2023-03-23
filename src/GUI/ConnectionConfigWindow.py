@@ -5,6 +5,7 @@ ICON_NAME = './resources/thebenlogo.jpg'
 BACKGROUND_COLOR = "#C4CEFF"
 
 
+# noinspection PyUnresolvedReferences
 class ConnectionConfigWindow(QWidget):
     def __init__(self, box_list, label_list, title_text, caption_text, sub_caption_text, parent):
         super().__init__()

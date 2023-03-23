@@ -16,6 +16,7 @@ home_dir = os.path.expanduser("~/Desktop")
 file_filter = "Python (*.py *.ipynb)"
 
 
+# noinspection PyUnresolvedReferences
 class ConfigWindow(QDialog):
 
     mode_box = None

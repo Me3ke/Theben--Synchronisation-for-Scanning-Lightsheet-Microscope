@@ -3,10 +3,8 @@ import logging
 import cv2
 import numpy as np
 import sys
-import imageio
 import threading
 
-from PyQt6.QtCore import QFile, QIODeviceBase
 from PyQt6.QtWidgets import QApplication, QFileDialog
 from PyQt6.QtGui import QImage, QPixmap
 from src.GUI.MainWindow import MainWindow
@@ -22,7 +20,7 @@ file_filter = "Python (*.py *.ipynb)"
 
 FIRST_IMAGE_NAME = './resources/default.tif'
 DEFAULT_IMAGE_WIDTH = 1024
-DEFAULT_IMAGE_HEIGHT = 1024
+DEFAULT_IMAGE_HEIGHT = 512
 DEFAULT_IMAGE_MAX_PIXEL_VALUE = 65535
 DEFAULT_IMAGE_TYPE = QImage.Format.Format_Grayscale16
 DEFAULT_IMAGE_INT_TYPE = np.uint16
@@ -111,17 +109,14 @@ class GUIController:
 
     def save(self):
         """Save an image in original size"""
-        # Make sure all image values are applied
-        result_array = np.zeros((DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH))
-        normalized_array = cv2.normalize(self.original_array, result_array, 0,
-                                         DEFAULT_IMAGE_MAX_PIXEL_VALUE, cv2.NORM_MINMAX)
         # Path will be saved in the main window after the dialog
         path_to_file = self.main_window.save_image_path
         if path_to_file == "":
             log.error("No path specified")
             return
         try:
-            imageio.imwrite(path_to_file, normalized_array)
+            cv2.imwrite(path_to_file, self.original_array)
+            log.info("File saved")
         except Exception as ex:
             log.error("File could not be opened, make sure the file is closed and files may be created")
             log.error(ex)
@@ -204,7 +199,10 @@ class GUIController:
                 log.warning("No path specified")
         else:
             setup = read(setup_path)
-            self.setup_window = SetupWindow(setup_path, setup)
+            if setup == "":
+                log.error("empty setup cannot be modified")
+            else:
+                self.setup_window = SetupWindow(setup_path, setup)
 
     def create_setup(self):
         """

@@ -1,8 +1,6 @@
 import logging
 import threading
 import time
-import os
-import matplotlib.pyplot as plt
 
 from src.Commander.AbstractCommander import AbstractCommander
 from src.Commander.RunningCommander import RunningCommander
@@ -27,7 +25,7 @@ REJECT_COMMAND = "9"
 
 # Describes the maximum deviation the max/min picture positions may have in the picture
 # (e.g. 5 -> maximum picture position may be between pixel 0 and 5; Minimum between pic_height and pic_height - 5)
-PIC_POS_DISTANCE_THRESHOLD = 5
+PIC_POS_DISTANCE_THRESHOLD = 2
 
 # Describes the number of steps in one process to find max/min positions
 MAX_PIC_POS_STEPS = 100
@@ -36,7 +34,7 @@ MAX_PIC_POS_STEPS = 100
 MAX_PIC_POS_REPEATS = 3
 
 # Describes the laser maximum intensity value
-LASER_MAX_INTENSITY_VALUE = 30000
+LASER_MAX_INTENSITY_VALUE = 50000
 
 # Describes the laser minimum intensity value
 LASER_MIN_INTENSITY_VALUE = 6000
@@ -111,7 +109,6 @@ class CalibrationCommander (AbstractCommander):
                     self.picture_row_test(mid_pic_pos)
                     log.info("No discrepancy found")
                     time.sleep(0.5)
-                    # TODO show graph maybe?
                     log.info("Starting time calibration. (Might take a moment)")
                     # Get t_final to save in parameters
                     self.t_final = self.time_calibration()
@@ -129,8 +126,8 @@ class CalibrationCommander (AbstractCommander):
                     self.started = False
                     self.laser_controller.turn_off()
                 self.stop()
-                time.sleep(1)
                 log.info("Changing into running mode")
+                time.sleep(5)
                 self.change_running()
         else:
             log.warning("Already started")
@@ -147,10 +144,11 @@ class CalibrationCommander (AbstractCommander):
             raise CameraBlockedException("Camera could not make an image, make sure the parameters are valid.")
         else:
             pos, val = find_max_pos(image)
-            if val >= LASER_MAX_INTENSITY_VALUE:
-                raise OpticalDefectException("Laser intensity too high")
+            if val > LASER_MAX_INTENSITY_VALUE:
+                raise OpticalDefectException("Laser intensity too high. Currently: " + str(val))
             elif val <= LASER_MIN_INTENSITY_VALUE:
-                raise OpticalDefectException("Laser intensity too low")
+                raise OpticalDefectException("Laser intensity too low. Currently: " + str(val))
+            self.hardware_controller.send_and_receive(CONFIRM_COMMAND)
             return val
 
     def get_pic_pos(self, start_pos, threshold, intensity):
@@ -277,9 +275,6 @@ class CalibrationCommander (AbstractCommander):
             while True:
                 answer = self.hardware_controller.get_single_command()
                 log.debug(answer)
-                log.debug(self.hardware_controller.get_single_command())
-                log.debug(self.hardware_controller.get_single_command())
-                log.debug(self.hardware_controller.get_single_command())
                 if answer == 'finished\r\n':
                     current_t = self.hardware_controller.get_single_command()
                     log.debug(current_t)
@@ -335,6 +330,7 @@ class CalibrationCommander (AbstractCommander):
         """Change the current mode to running, after the calibration has been finished"""
         try:
             new_commander = RunningCommander(self.gui_controller, self.init, self.setup_path, self.param_path)
+            new_commander.param = load(self.param_path, 'param')
         except FileImportException:
             return
         self.gui_controller.set_commander(new_commander)

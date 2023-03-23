@@ -17,6 +17,7 @@ log = logging.getLogger("log")
 home_dir = os.path.expanduser("~/Desktop")
 
 
+# noinspection PyUnresolvedReferences
 class MainWindow(QWidget):
     """
     Main Window of the application.
@@ -115,7 +116,7 @@ class MainWindow(QWidget):
         log_textbox = QTextEditLogger(self)
         log_textbox.setFormatter(CustomFormatter())
         log.addHandler(log_textbox)
-        log.setLevel(logging.DEBUG)
+        log.setLevel(logging.INFO)
         return log_textbox
 
     def show_image(self, image):
@@ -155,7 +156,6 @@ class MainWindow(QWidget):
         self.brightness_slider.setTickInterval(100)
         self.brightness_slider.sliderReleased.connect(self.change_brightness)
 
-        # TODO contrast
         self.contrast_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
         self.contrast_slider.setMaximum(3)
         self.contrast_slider.setMinimum(1)
@@ -163,7 +163,8 @@ class MainWindow(QWidget):
 
         self.gamma_slider = QSlider(QtCore.Qt.Orientation.Horizontal, self)
         self.gamma_slider.setMaximum(110)
-        self.gamma_slider.setMinimum(100)
+        self.gamma_slider.setMinimum(90)
+        self.gamma_slider.setValue(100)
         self.gamma_slider.sliderReleased.connect(self.change_gamma)
 
     def init_button_clicked(self):

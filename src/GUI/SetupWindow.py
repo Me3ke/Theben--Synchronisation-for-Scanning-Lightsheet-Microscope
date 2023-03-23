@@ -49,9 +49,9 @@ VAR_NAMES = ["serial_hc_1_port",
 INITIAL_SETUP_SPACE = 2
 
 
+# noinspection PyUnresolvedReferences
 class SetupWindow(QWidget):
 
-    # TODO tooltips for all
     hc_button = None
     laser_button = None
     button_box = None

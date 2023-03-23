@@ -1,3 +1,4 @@
+import faulthandler
 import sys
 import os
 
@@ -20,4 +21,5 @@ def main():
 
 
 if __name__ == "__main__":
+    # faulthandler.enable() use to debug
     main()
